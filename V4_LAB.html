@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXUS V4 • Possibility Lab</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#07070b;color:#f4f4f5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#18122d,#07070b 55%);min-height:100vh}
+main{max-width:1180px;margin:auto;padding:40px 24px 80px}.eyebrow{letter-spacing:.18em;text-transform:uppercase;font-size:11px;opacity:.55}.title{font-size:clamp(34px,6vw,68px);line-height:.95;margin:10px 0 16px}.intro{max-width:720px;color:#a1a1aa;line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.panel{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:20px;backdrop-filter:blur(18px)}textarea{width:100%;min-height:130px;resize:vertical;background:#09090d;color:#fff;border:1px solid #292933;border-radius:14px;padding:16px;font:inherit;line-height:1.5}button{margin-top:12px;border:0;border-radius:999px;padding:11px 17px;background:#fff;color:#09090d;font-weight:700;cursor:pointer}.status{margin-top:10px;font-size:12px;color:#a1a1aa}.section{margin-top:18px}.section h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#71717a}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid #292933;border-radius:999px;padding:7px 10px;font-size:12px;color:#d4d4d8}.confidence{color:#67e8f9}.possibility{padding:14px;border:1px solid rgba(103,232,249,.18);border-radius:14px;margin:8px 0;background:rgba(103,232,249,.04)}.possibility strong{display:block}.muted{color:#71717a;font-size:12px;line-height:1.5}.json{white-space:pre-wrap;max-height:520px;overflow:auto;font:12px/1.5 ui-monospace,monospace;color:#c4b5fd}.unknown{color:#fbbf24}.ready{color:#67e8f9}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">NEXUS / V4</div>
+<h1 class="title">Possibility Lab</h1>
+<p class="intro">Un laboratoire séparé de l'expérience 3D actuelle. Il permet de vérifier le nouveau modèle avant de modifier le cube : faits, situation, besoins, ressources, capacités, temporalité, incertitude et possibilités restent distincts.</p>
+<div class="grid">
+<section class="panel">
+<div class="eyebrow">Expression humaine</div>
+<textarea id="input">J'ai une chambre qui ne sert plus depuis que ma fille est partie.</textarea>
+<button id="analyze">Analyser la situation</button>
+<div id="status" class="status">Chargement du moteur V4…</div>
+<div class="section"><h2>Compréhension</h2><div id="summary" class="muted">—</div></div>
+<div class="section"><h2>Incertitude</h2><div id="uncertainty">—</div></div>
+</section>
+<section class="panel">
+<div class="eyebrow">Ce que la situation rend possible</div>
+<div id="possibilities"><div class="muted">—</div></div>
+<div class="section"><h2>Situation</h2><div id="signals" class="chips"></div></div>
+<div class="section"><h2>Temporalité</h2><div id="time" class="chips"></div></div>
+</section>
+</div>
+<section class="panel section"><div class="eyebrow">Analyse structurée</div><div id="json" class="json">—</div></section>
+</main>
+<script src="./V4_engine.js"></script>
+<script>
+(function(){
+  const status=document.getElementById('status');
+  const input=document.getElementById('input');
+  const button=document.getElementById('analyze');
+  const engineClass=window.NexusV4PossibilityEngine||window.NEXUS_V4_ENGINE||window.NexusV4Engine;
+  if(!engineClass){
+    status.innerHTML='<span class="unknown">Moteur V4 non exposé au navigateur.</span> Le fichier est chargé mais sa classe n’est pas disponible globalement.';
+    return;
+  }
+  const engine=new engineClass();
+  status.innerHTML='<span class="ready">Moteur V4 chargé</span> • '+(engine.version||'4.0.0');
+  function textSignals(arr){return (arr||[]).map(x=>'<span class="chip">'+escapeHtml(x.value)+' <span class="confidence">'+Math.round((x.confidence||0)*100)+'%</span></span>').join('')||'<span class="muted">Aucun signal suffisamment étayé.</span>'}
+  function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function render(a){
+    document.getElementById('summary').textContent=a.comprehension?.summary||'Je ne sais pas encore.';
+    const u=a.uncertainty||{}; document.getElementById('uncertainty').innerHTML='<strong class="'+(u.label==='high'?'unknown':'')+'">'+Math.round((u.overall||0)*100)+'% d’incertitude</strong><div class="muted">'+escapeHtml((u.reasons||[]).join(' • ')||'Aucune raison supplémentaire.')+'</div>';
+    const p=a.possibilities||[]; document.getElementById('possibilities').innerHTML=p.length?p.map(x=>'<div class="possibility"><strong>'+escapeHtml(x.value)+'</strong><div class="muted">'+escapeHtml(x.rationale)+'</div><div class="confidence">Possibilité '+Math.round((x.confidence||0)*100)+'% • '+(x.reversible?'réversible':'engageante')+'</div></div>').join(''):'<div class="muted">Aucune possibilité suffisamment étayée.</div>';
+    document.getElementById('signals').innerHTML=textSignals([...(a.needs||[]),...(a.resources||[]),...(a.capacities||[]),...(a.constraints||[])]);
+    const t=a.temporality||{}; document.getElementById('time').innerHTML='<span class="chip">'+escapeHtml(t.horizon||'unknown')+' <span class="confidence">'+Math.round((t.confidence||0)*100)+'%</span></span>';
+    document.getElementById('json').textContent=JSON.stringify(a,null,2);
+  }
+  button.addEventListener('click',()=>{try{render(engine.analyze(input.value));}catch(e){status.innerHTML='<span class="unknown">Erreur V4 :</span> '+escapeHtml(e.message);}});
+  render(engine.analyze(input.value));
+})();
+</script>
+</body>
+</html>
