@@ -1,8 +1,8 @@
 {
   "name": "nexus-gaia-world",
-  "version": "11.0.0",
+  "version": "15.0.0",
   "private": true,
   "scripts": {
-    "build": "node -e \"console.log('NEXUS V11 static build: nothing to compile')\""
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('public',{recursive:true,force:true}); fs.mkdirSync('public',{recursive:true}); fs.copyFileSync('V15_living_constellation.html','public/index.html'); console.log('NEXUS V15 static build complete: public/index.html')\""
   }
 }
