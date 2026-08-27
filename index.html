@@ -1,22 +1,32 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>NEXUS • L'Internet des Intentions</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
         
+        /* CSS Variables for the design system */
         :root {
             --primary: #00f7ff;
+            --bg-primary: #050308;
+            --bg-secondary: #0a0412;
+            --bg-tertiary: #110a1e;
+            --accent-primary: #00f7ff;
+            --accent-secondary: #7b5eff;
+            --accent-tertiary: #ff00cc;
+            --accent-quaternary: #00d4aa;
+            --text-primary: #e0d8f0;
+            --text-secondary: #a898d0;
+            --text-muted: #665280;
+            --glass-bg: rgba(10, 5, 25, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glow-intensity: 0.8;
         }
         
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
         
         body {
@@ -24,117 +34,252 @@
             background: radial-gradient(circle at center, #1a0b3d 0%, #0a0519 70%);
             color: #e0d4ff;
             overflow: hidden;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
             height: 100vh;
             position: relative;
         }
         
+        /* ============ FULLSCREEN GLOW LAYER ============ */
+        .scene-glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .orbital-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbital-pulse 20s infinite ease-in-out;
+        }
+        
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .glow-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 5s;
+        }
+        
+        .glow-3 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--accent-tertiary) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+        }
+        
+        @keyframes orbital-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        
+        /* ============ SUBTLE BACKGROUND PATTERN ============ */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 60, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 204, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 247, 255, 0.02) 0%, transparent 70%);
+        }
+        
+        /* ============ HEADER ============ */
         .header {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 80px;
+            height: 88px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 40px;
+            padding: 0 32px;
             z-index: 100;
             background: linear-gradient(to bottom, rgba(10, 5, 25, 0.7), transparent);
+            backdrop-filter: blur(20px);
+            background: linear-gradient(to bottom, rgba(5, 3, 8, 0.8), transparent);
+            border-bottom: 1px solid var(--glass-border);
         }
         
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
+            gap: 10px;
             font-family: 'Space Grotesk', sans-serif;
             font-size: 28px;
+            font-size: 26px;
             font-weight: 600;
             letter-spacing: -1px;
             color: white;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
             text-decoration: none;
+            transition: color 0.3s ease;
         }
+        
+        .logo:hover { color: var(--accent-primary); }
         
         .logo-dot {
             width: 28px;
             height: 28px;
             background: linear-gradient(135deg, #00f7ff, #ff00cc);
             border-radius: 8px;
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #0a0519;
+            color: var(--bg-primary);
             font-weight: 700;
             font-size: 18px;
             box-shadow: 0 0 25px rgba(0, 247, 255, 0.8);
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.4);
         }
         
         .nav {
             display: flex;
             gap: 32px;
             font-size: 15px;
+            gap: 28px;
+            font-size: 14px;
             font-weight: 500;
+            letter-spacing: 0.2px;
         }
         
         .nav a {
             color: #c3b0ff;
+            color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s ease;
         }
         
         .nav a:hover {
             color: white;
             text-shadow: 0 0 15px rgba(0, 247, 255, 0.6);
+            color: var(--text-primary);
         }
+        
+        .nav a:hover::after { width: 100%; }
+        
+        .nav a.active { color: var(--accent-primary); }
         
         .header-right {
             display: flex;
             align-items: center;
             gap: 16px;
+            gap: 14px;
         }
         
         .mode-toggle {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
             border-radius: 30px;
             padding: 4px;
+            padding: 4px 12px;
             display: flex;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            gap: 6px;
+            backdrop-filter: blur(12px);
         }
         
         .mode-btn {
             padding: 6px 18px;
             border-radius: 30px;
             font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
         }
+        
+        .mode-btn:hover { color: var(--text-primary); }
         
         .mode-active {
             background: linear-gradient(90deg, #7b5eff, #ff00cc);
+            background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
             color: white;
             box-shadow: 0 0 20px rgba(123, 94, 255, 0.5);
+            box-shadow: 0 0 25px rgba(123, 94, 255, 0.4);
         }
         
+        /* ============ HERO SECTION ============ */
         .hero {
             position: absolute;
             top: 50%;
             left: 50px;
+            left: 40px;
             transform: translateY(-50%);
             max-width: 380px;
             z-index: 10;
+            max-width: 400px;
+            z-index: 50;
         }
         
         .hero h1 {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 52px;
+            font-size: 56px;
             line-height: 1.05;
             font-weight: 600;
             background: linear-gradient(90deg, #a0f0ff, #ff9eff);
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(90deg, #a0ffff, #ff9eff, var(--accent-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 16px;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
         }
         
         .hero p {
@@ -142,15 +287,19 @@
             line-height: 1.4;
             color: #d4c3ff;
             margin-bottom: 32px;
+            font-size: 20px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 36px;
         }
         
         .subtitle {
             font-size: 18px;
             color: #a38dff;
+            color: var(--text-muted);
             margin-bottom: 8px;
             font-weight: 500;
         }
-        
         .cta-button {
             display: inline-flex;
             align-items: center;
@@ -160,42 +309,85 @@
             color: white;
             padding: 14px 32px;
             border-radius: 60px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(0, 247, 255, 0.4);
+            color: var(--text-primary);
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
         
         .cta-button:hover {
             background: rgba(0, 247, 255, 0.15);
             transform: translateY(-4px);
             box-shadow: 0 0 40px rgba(0, 247, 255, 0.6);
+            border-color: var(--accent-primary);
+            background: rgba(0, 247, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 0 50px rgba(0, 247, 255, 0.4);
         }
         
+        .cta-button:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 4px; }
+        
+        /* ============ CUBE CANVAS ============ */
         .canvas-container {
             position: absolute;
             top: 0;
+            top: 88px;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 2;
+            right: 0;
+            bottom: 0;
+            z-index: 3;
         }
         
         .stats-panel {
+        /* ============ SIDE PANELS ============ */
+        .side-panel {
             position: absolute;
             top: 110px;
             right: 50px;
             background: rgba(15, 8, 40, 0.75);
             border-radius: 24px;
             padding: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 32px;
             width: 240px;
             backdrop-filter: blur(20px);
             border: 1px solid rgba(120, 90, 255, 0.3);
             box-shadow: 0 25px 50px -12px rgb(0 0 0);
             z-index: 30;
+            background: var(--glass-bg);
+            border-radius: 28px;
+            padding: 28px 32px;
+            z-index: 40;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            box-shadow: 
+                0 35px 60px -20px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
         }
         
         .stat {
+        .side-panel.left { left: 32px; }
+        .side-panel.right { right: 32px; }
+        
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 16px;
@@ -204,17 +396,26 @@
         
         .stat:last-child {
             margin-bottom: 0;
+            gap: 8px;
         }
         
         .stat-icon {
             width: 42px;
             height: 42px;
             border-radius: 12px;
+        .panel-title span {
+            width: 20px;
+            height: 20px;
+            border-radius: 50;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
             background: rgba(255,255,255,0.1);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--bg-primary);
         }
         
         .stat-info h3 {
@@ -222,15 +423,57 @@
             font-weight: 700;
             color: #fff;
             line-height: 1;
+        /* ============ RECENT INTENTS PANEL ============ */
+        .recent-intent {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
         
         .stat-info p {
+        .recent-intent:last-child { border-bottom: none; }
+        
+        .recent-intent:hover { background: rgba(255, 255, 255, 0.03); }
+        
+        .recent-intent:last-child:hover { background: transparent; }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #5a2d8e, #00d4aa);
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+            flex-shrink: 0;
+            position: relative;
+            top: 2px;
+        }
+        
+        .intent-text {
             font-size: 13px;
             color: #b8a4ff;
             margin-top: 4px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        
+        .intent-time {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
         
         .live-map {
+        /* ============ STATS PANEL ============ */
+        .stats-panel {
             position: absolute;
             bottom: 180px;
             right: 50px;
@@ -241,6 +484,19 @@
             border: 1px solid rgba(120, 90, 255, 0.25);
             box-shadow: 0 25px 50px -12px rgb(0 0 0);
             z-index: 30;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 32px;
+            width: 200px;
+            background: var(--glass-bg);
+            border-radius: 28px;
+            padding: 28px 24px;
+            z-index: 40;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            box-shadow: 
+                0 35px 60px -20px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
         }
         
         .map-header {
@@ -248,19 +504,33 @@
             background: rgba(0, 0, 0, 0.3);
             font-size: 13px;
             font-weight: 600;
+        .stat {
             display: flex;
             align-items: center;
             gap: 8px;
+            gap: 14px;
+            margin-bottom: 22px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
         }
         
         .map-content {
             height: 140px;
             background: linear-gradient(45deg, #12082a, #2a1b4f);
             position: relative;
+        .stat:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            font-size: 18px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .world-dots {
@@ -272,11 +542,31 @@
                 radial-gradient(circle, rgba(255,120,220,0.6) 1px, transparent 0) 60px 70px / 55px 55px;
             opacity: 0.6;
             animation: pulse-map 8s infinite linear;
+        .stat-info {
+            flex: 1;
+        }
+        
+        .stat-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        
+        .stat-info p {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
         
         .intent-input-container {
+        /* ============ INTENT INPUT ============ */
+        .intent-input-wrapper {
             position: absolute;
             bottom: 80px;
+            bottom: 32px;
             left: 50%;
             transform: translateX(-50%);
             width: 620px;
@@ -286,33 +576,62 @@
             box-shadow: 0 0 60px -10px rgb(120 100 255),
                         0 25px 50px -12px rgb(0 0 0);
             border: 2px solid rgba(180, 120, 255, 0.4);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             z-index: 50;
             backdrop-filter: blur(24px);
         }
         
         .intent-input {
             width: 100%;
+            flex: 1;
             background: transparent;
             border: none;
             outline: none;
             padding: 18px 32px;
+            padding: 20px 32px;
             font-size: 18px;
             color: #f0e6ff;
             font-family: inherit;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            border-radius: 30px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            transition: all 0.3s ease;
         }
         
         .intent-input::placeholder {
             color: #8877aa;
+            color: var(--text-muted);
+            font-family: inherit;
         }
         
+        .intent-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 40px rgba(0, 247, 255, 0.2);
+        }
+        
+        .intent-input::-webkit-search-cancel-button {
+            display: none;
+        }
+        
+        /* ============ SUGGESTIONS / PORTES D'ENTRÉE ============ */
         .suggestions {
             position: absolute;
             bottom: 150px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 12px;
             z-index: 40;
+            gap: 10px;
+            z-index: 45;
             flex-wrap: wrap;
             max-width: 620px;
             justify-content: center;
@@ -324,30 +643,62 @@
             padding: 10px 24px;
             border-radius: 40px;
             font-size: 14px;
+            background: rgba(30, 15, 60, 0.7);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
             white-space: nowrap;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 1px solid rgba(180, 140, 255, 0.3);
             box-shadow: 0 8px 16px -8px rgb(120 90 255);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            min-width: 140px;
         }
         
         .suggestion-pill:hover {
             background: rgba(120, 60, 255, 0.8);
             transform: translateY(-4px);
             color: white;
+            border-color: var(--accent-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 247, 255, 0.2);
         }
         
         .side-panel {
+        .suggestion-pill:active { transform: scale(0.96); }
+        
+        .suggestion-pill.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+        }
+        
+        /* ============ LIVE MAP PANEL ============ */
+        .live-map-panel {
             position: absolute;
             left: 50px;
             bottom: 120px;
             width: 260px;
             background: rgba(15, 8, 40, 0.7);
             border-radius: 20px;
+            bottom: 32px;
+            left: 32px;
+            width: 220px;
+            background: var(--glass-bg);
+            border-radius: 24px;
             padding: 20px;
             z-index: 30;
             border: 1px solid rgba(100, 80, 255, 0.3);
             backdrop-filter: blur(16px);
+            z-index: 40;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            box-shadow: 
+                0 35px 60px -20px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
         }
         
         .panel-title {
@@ -356,9 +707,14 @@
             letter-spacing: 1px;
             margin-bottom: 16px;
             color: #a38dff;
+        .map-header {
             display: flex;
             align-items: center;
             gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
         }
         
         .recent-intent {
@@ -366,11 +722,17 @@
             gap: 14px;
             margin-bottom: 18px;
             align-items: flex-start;
+        .map-header h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
         }
         
         .recent-intent:last-child {
             margin-bottom: 0;
         }
+        .toggle-map { color: var(--text-secondary); font-size: 12px; cursor: pointer; }
         
         .avatar {
             width: 32px;
@@ -379,20 +741,41 @@
             background-size: cover;
             flex-shrink: 0;
             box-shadow: 0 0 0 3px rgba(120, 100, 255, 0.3);
+        .world-view {
+            height: 80px;
+            background: linear-gradient(135deg, #1a0f30 0%, #0d0715 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            margin: 12px 0;
         }
         
         .intent-text {
             font-size: 13.5px;
             line-height: 1.35;
+        .world-view::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle, rgba(0, 247, 255, 0.15) 1px, transparent 0) 20px 30px / 50px 50px,
+                radial-gradient(circle, rgba(170, 60, 255, 0.12) 1px, transparent 0) 70px 60px / 45px 45px,
+                radial-gradient(circle, rgba(255, 80, 180, 0.1) 1px, transparent 0) 110px 40px / 40px 40px;
+            animation: world-pulse 6s infinite linear;
         }
         
         .intent-time {
             font-size: 11px;
             color: #776699;
             margin-top: 4px;
+        @keyframes world-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
         }
         
         .footer-values {
+        .world-dot {
             position: absolute;
             bottom: 30px;
             left: 50%;
@@ -400,6 +783,12 @@
             display: flex;
             gap: 40px;
             z-index: 20;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent-primary);
+            animation: dot-bob 4s infinite ease-in-out;
         }
         
         .value {
@@ -407,6 +796,9 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
+        @keyframes dot-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
         
         .value-label {
@@ -415,10 +807,24 @@
             letter-spacing: 0.5px;
             color: #9988cc;
             font-weight: 500;
+        .trend-line {
+            position: absolute;
+            bottom: 8px;
+            left: 12px;
+            right: 12px;
+            height: 20px;
+            display: flex;
+            gap: 4px;
         }
         
         .value-icon {
             font-size: 22px;
+        .trend-bar {
+            flex: 1;
+            border-radius: 2px 2px 0 0;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            animation: trend-grow 3s ease-out;
+            opacity: 0.8;
         }
         
         .glow {
@@ -433,9 +839,12 @@
             pointer-events: none;
             animation: slow-pulse 15s infinite ease-in-out;
             border-radius: 50%;
+        @keyframes trend-grow {
+            from { height: 0; }
         }
         
         .title-bar {
+        .trend-label {
             position: absolute;
             top: 110px;
             left: 50px;
@@ -443,6 +852,11 @@
             font-weight: 500;
             color: #c8b0ff;
             z-index: 30;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 10px;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -457,9 +871,13 @@
         @keyframes slow-pulse {
             0%, 100% { transform: translate(-50%, -50%) scale(1); }
             50% { transform: translate(-50%, -50%) scale(1.15); }
+            justify-content: space-between;
+            margin-top: 4px;
         }
         
         .connection-line {
+        /* ============ CONNECTIONS INSPIRANTES ============ */
+        .inspiring-connections {
             position: absolute;
             height: 2px;
             background: linear-gradient(90deg, transparent, #7b5eff, transparent);
@@ -467,33 +885,310 @@
             opacity: 0.3;
             z-index: 5;
             animation: dash 4s linear infinite;
+            top: 50%;
+            right: 32px;
+            transform: translateY(-50%);
+            width: 240px;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 24px;
+            z-index: 40;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+            box-shadow: 
+                0 35px 60px -20px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
         }
         
         .floating-label {
             position: absolute;
             background: rgba(10, 5, 35, 0.9);
             color: #00f7ff;
+        .connections-title {
             font-size: 12px;
             padding: 4px 14px;
-            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .connections-title span {
+            width: 16px;
+            height: 16px;
+            border-radius: 50;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--bg-primary);
+        }
+        
+        .connection-story {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .connection-story:last-child { border-bottom: none; }
+        
+        .connection-story:hover { background: rgba(255, 255, 255, 0.02); }
+        
+        .story-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #5a2d8e, #00d4aa);
+            box-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
+        }
+        
+        .story-detail {
+            flex: 1;
+        }
+        
+        .story-detail h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        
+        .story-detail p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        /* ============ TRUST PANEL ============ */
+        .trust-panel {
+            position: absolute;
+            bottom: 32px;
+            left: 32px;
+            width: 200px;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 40;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px);
+        }
+        
+        .trust-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .trust-title span {
+            width: 14px;
+            height: 14px;
+            border-radius: 50;
+            background: var(--accent-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: white;
+        }
+        
+        .trust-rule {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .trust-rule::before {
+            content: '•';
+            color: var(--accent-primary);
+            font-size: 10px;
+        }
+        
+        /* ============ FACE LABELS ON CUBE ============ */
+        .face-label {
+            position: absolute;
+            min-width: 50px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-primary);
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 247, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .face-label.visible {
+            opacity: 1;
+        }
+        
+        .face-label.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+            box-shadow: 0 0 25px rgba(0, 247, 255, 0.4);
+        }
+        
+        /* ============ CONSTELLATION RESULTS ============ */
+        .constellation-overlay {
+            position: fixed;
+            inset: 0;
             pointer-events: none;
             box-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
             z-index: 100;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .constellation-overlay.active { opacity: 1; }
+        
+        .connection-star {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent-primary);
+            animation: star-shine 2s infinite;
+        }
+        
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            opacity: 0.5;
+        }
+        
+        @keyframes star-shine {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        /* ============ ENTRANCE ANIMATIONS ============ */
+        .fade-in-up {
             opacity: 0;
             transition: opacity 0.3s;
+            transform: translateY(20px);
+            animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        
+        .fade-in-up-delay-1 { animation-delay: 0.1s; }
+        .fade-in-up-delay-2 { animation-delay: 0.2s; }
+        .fade-in-up-delay-3 { animation-delay: 0.3s; }
+        .fade-in-up-delay-4 { animation-delay: 0.4s; }
+        
+        @keyframes fade-in-up {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ============ MOBILE OVERLAYS ============ */
+        .mobile-cube-instruction {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            z-index: 60;
+            backdrop-filter: blur(20px);
+        }
+        
+        /* ==========:: INTENT TRANSFORMATION FEEDBACK ============ */
+        .intent-transform-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 70;
+            pointer-events: none;
+        }
+        
+        .transform-indicator {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 247, 255, 0.15);
+            border: 1px solid rgba(0, 247, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ============ ENTRY PORTAL ANIMATION ============ */
+        .portal-entry {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+        
+        .portal-entry.hidden { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
     <div class="glow"></div>
+    <!-- Background glows -->
+    <div class="scene-glow">
+        <div class="orbital-glow glow-1"></div>
+        <div class="orbital-glow glow-2"></div>
+        <div class="orbital-glow glow-3"></div>
+    </div>
     
     <!-- HEADER -->
     <div class="header">
         <div class="logo">
+    <div class="bg-pattern"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <a href="#" class="logo">
             <div class="logo-dot">N</div>
             <div>NEXUS</div>
         </div>
+        </a>
         
         <div class="nav">
             <a href="#">Accueil</a>
@@ -502,55 +1197,85 @@
             <a href="#">Connexion</a>
             <a href="#">À propos</a>
         </div>
+        <nav class="nav">
+            <a href="#" class="active">Accueil</a>
+            <a href="#explorer">Explorer</a>
+            <a href="#intentions">Intentions</a>
+            <a href="#connexions">Connexions</a>
+            <a href="#propos">À propos</a>
+        </nav>
         
         <div class="header-right">
             <div class="mode-toggle">
                 <div onclick="toggleMode(this)" class="mode-btn mode-active">✦ Mode Cristal</div>
                 <div onclick="toggleMode(this)" class="mode-btn">🌙</div>
+                <button onclick="toggleMode(this)" class="mode-btn mode-active">✦ Cristal</button>
+                <button onclick="toggleMode(this)" class="mode-btn">🌙</button>
             </div>
             <div style="width: 42px; height: 42px; background: linear-gradient(#ff00cc, #7b5eff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; box-shadow: 0 0 25px #ff00cc;">👤</div>
+            <div style="width: 40px; height: 40px; background: linear-gradient(#ff00cc, #7b5eff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; box-shadow: 0 0 20px #ff00cc;">👤</div>
         </div>
     </div>
+    </header>
     
     <!-- HERO TEXT -->
     <div class="hero">
+    <!-- Hero Section -->
+    <section class="hero fade-in-up">
         <div class="subtitle">Ce qui cherche trouve ce qui peut.</div>
         <h1>Le monde<br>vous répond.</h1>
         <p style="font-size: 17px; margin-bottom: 40px; color: #bbadff;">Exprimez une intention.<br>Le monde s'organise.<br>Les possibilités se connectent.</p>
+        <p>Exprimez une intention.<br>Le monde s'organise.<br>Les possibilités se connectent.</p>
         
         <a href="#" onclick="playIntroVideo(); return false;" class="cta-button">
             <span style="font-size: 22px;">▶</span>
             <span>Voir le film</span>
+        <a href="#cube" class="cta-button" style="margin-top: 24px;">
+            <span style="font-size: 20px;">▶</span>
+            <span>Découvrir NEXUS</span>
         </a>
     </div>
+    </section>
+    
+    <!-- 3D Canvas -->
+    <div class="canvas-container" id="canvas-container"></div>
     
     <!-- LEFT SIDE PANEL -->
     <div class="side-panel">
+    <!-- Side Panels -->
+    <div class="side-panel left" id="side-panel-left">
         <div class="panel-title">
             <span style="font-size: 18px;">⟡</span>
+            <span>⟡</span>
             INTENTIONS RÉCENTES
         </div>
         
         <div class="recent-intent">
             <div class="avatar" style="background-image: url('https://picsum.photos/id/64/64/64')"></div>
+            <div class="avatar" style="background: linear-gradient(135deg, #5a2d8e, #00d4aa);"></div>
             <div>
                 <div class="intent-text">Apprendre la guitare</div>
+                <div class="intent-text" id="recent-intent-1">Apprendre la guitare</div>
                 <div class="intent-time">Il y a 2 min • Paris</div>
             </div>
         </div>
         
         <div class="recent-intent">
             <div class="avatar" style="background-image: url('https://picsum.photos/id/201/64/64')"></div>
+            <div class="avatar" style="background: linear-gradient(135deg, #5a2d8e, #00d4aa);"></div>
             <div>
                 <div class="intent-text">Besoin d'un hébergement pour 3 nuits</div>
+                <div class="intent-text" id="recent-intent-2">Besoin d'un hébergement pour 3 nuits</div>
                 <div class="intent-time">Il y a 4 min • Lyon</div>
             </div>
         </div>
         
         <div class="recent-intent">
             <div class="avatar" style="background-image: url('https://picsum.photos/id/29/64/64')"></div>
+            <div class="avatar" style="background: linear-gradient(135deg, #5a2d8e, #00d4aa);"></div>
             <div>
                 <div class="intent-text">Proposer covoiturage Lille → Paris demain</div>
+                <div class="intent-text" id="recent-intent-3">Proposer covoiturage Lille → Paris demain</div>
                 <div class="intent-time">Il y a 6 min • Lille</div>
             </div>
         </div>
@@ -558,6 +1283,9 @@
         <div onclick="viewAllIntents()" style="margin-top: 20px; font-size: 13px; color: #00ddff; cursor: pointer; display: flex; align-items: center; gap: 8px;">
             <span>Voir toutes les intentions</span>
             <span style="font-size: 18px;">→</span>
+        <div onclick="viewAllRecent()" style="margin-top: 20px; font-size: 12px; color: var(--accent-primary); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span>Voir toutes</span>
+            <span>→</span>
         </div>
     </div>
     
@@ -569,6 +1297,10 @@
                 <h3 id="stat-intents">12 687</h3>
                 <p>intentions exprimées en ce moment</p>
             </div>
+    <div class="side-panel right" id="side-panel-right">
+        <div class="panel-title">
+            <span>⟡</span>
+            STATISTIQUES MONDIALES
         </div>
         
         <div class="stat">
@@ -576,6 +1308,13 @@
             <div class="stat-info">
                 <h3 id="stat-needs">8 941</h3>
                 <p>besoins en cours</p>
+        <div class="stats-panel">
+            <div class="stat">
+                <div class="stat-icon" style="color: var(--accent-primary);">♡</div>
+                <div class="stat-info">
+                    <h3 id="stat-intents">12 687</h3>
+                    <p>intentions exprimées en ce moment</p>
+                </div>
             </div>
         </div>
         
@@ -584,6 +1323,13 @@
             <div class="stat-info">
                 <h3 id="stat-capacities">19 932</h3>
                 <p>capacités disponibles</p>
+            
+            <div class="stat">
+                <div class="stat-icon" style="color: var(--accent-secondary);">◉</div>
+                <div class="stat-info">
+                    <h3 id="stat-needs">8 941</h3>
+                    <p>besoins en cours</p>
+                </div>
             </div>
         </div>
         
@@ -592,6 +1338,13 @@
             <div class="stat-info">
                 <h3 id="stat-links">2 378</h3>
                 <p>connexions créées aujourd'hui</p>
+            
+            <div class="stat">
+                <div class="stat-icon" style="color: var(--accent-tertiary);">✦</div>
+                <div class="stat-info">
+                    <h3 id="stat-capacities">19 932</h3>
+                    <p>capacités disponibles</p>
+                </div>
             </div>
         </div>
         
@@ -601,6 +1354,13 @@
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="color: #6cf;">🌍</span>
                 <span style="font-weight: 600;">Carte vivante des besoins</span>
+            
+            <div class="stat">
+                <div class="stat-icon" style="color: var(--accent-primary);">⟐</div>
+                <div class="stat-info">
+                    <h3 id="stat-links">2 378</h3>
+                    <p>connexions créées aujourd'hui</p>
+                </div>
             </div>
             <span style="color: #6cf; font-size: 18px;">›</span>
         </div>
@@ -608,9 +1368,13 @@
     
     <!-- LIVE MAP -->
     <div class="live-map">
+    <!-- Live Map -->
+    <div class="live-map-panel" id="live-map-panel">
         <div class="map-header">
             <span style="color: #7af;">◉</span>
             <span>ACTIVITÉ MONDIALE EN TEMPS RÉEL</span>
+            <h3>CARTE VIVANTE DES BESOINS</h3>
+            <span class="toggle-map" onclick="toggleMap()">›</span>
         </div>
         <div class="map-content">
             <div class="world-dots"></div>
@@ -623,6 +1387,26 @@
             <div style="position: absolute; bottom: 12px; left: 20px; font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 10px; border-radius: 12px; color: #99eeff;">
                 184 intentions actives
             </div>
+        
+        <div class="world-view" id="world-view">
+            <div class="world-dot" style="top: 25%; left: 20%; animation-delay: 0s;"></div>
+            <div class="world-dot" style="top: 55%; left: 65%; animation-delay: 0.8s;"></div>
+            <div class="world-dot" style="top: 25%; left: 72%; animation-delay: 1.6s;"></div>
+            <div class="world-dot" style="top: 68%; left: 38%; animation-delay: 2.4s;"></div>
+        </div>
+        
+        <div class="trend-line">
+            <div class="trend-bar" style="background: var(--accent-primary); width: 25%; animation-delay: 0s;"></div>
+            <div class="trend-bar" style="background: var(--accent-secondary); width: 35%; animation-delay: 0.5s;"></div>
+            <div class="trend-bar" style="background: var(--accent-tertiary); width: 20%; animation-delay: 1s;"></div>
+            <div class="trend-bar" style="background: var(--accent-primary); width: 50%; animation-delay: 1.5s;"></div>
+        </div>
+        
+        <div class="trend-label">
+            <span>Transmission ↑</span>
+            <span>Logement ↑</span>
+            <span>Compétences ↑</span>
+            <span>Solitude ↑</span>
         </div>
     </div>
     
@@ -638,6 +1422,23 @@
         <div style="position:absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; background: linear-gradient(135deg, #00f7ff, #c34eff); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 25px #00f7ff;" onclick="submitIntent()">
             <span style="font-size: 24px; color: #0a0519;">↗</span>
         </div>
+    <!-- Intent Input -->
+    <div class="intent-input-wrapper" id="intent-input-wrapper">
+        <input 
+            type="text" 
+            class="intent-input" 
+            id="intent-input"
+            placeholder="Qu'est-ce qui est vivant pour toi en ce moment ?"
+            autocomplete="off"
+            aria-label="Exprimer une intention"
+        >
+        
+        <button 
+            onclick="submitIntent()"
+            style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: transform 0.2s ease;"
+        >
+            <span style="font-size: 20px; color: var(--bg-primary);">↗</span>
+        </button>
     </div>
     
     <!-- SUGGESTIONS -->
@@ -646,6 +1447,13 @@
         <div onclick="quickIntent(this)" class="suggestion-pill">J'ai besoin d'aide</div>
         <div onclick="quickIntent(this)" class="suggestion-pill">Je peux aider</div>
         <div onclick="quickIntent(this)" class="suggestion-pill">J'ai quelque chose à proposer</div>
+    <!-- Suggestions / Portes d'entrée -->
+    <div class="suggestions" id="suggestions">
+        <div onclick="selectSuggestion(this)" class="suggestion-pill active">JE CHERCHE QUELQUE CHOSE</div>
+        <div onclick="selectSuggestion(this)" class="suggestion-pill">♥ J'AI BESOIN D'AIDE</div>
+        <div onclick="selectSuggestion(this)" class="suggestion-pill">✦ JE PEUX AIDER</div>
+        <div onclick="selectSuggestion(this)" class="suggestion-pill">◇ J'AI QUELQUE CHOSE À PROPOSER</div>
+        <div onclick="selectSuggestion(this)" class="suggestion-pill">∞ JE NE SAIS PAS, MAIS J'AIMERAIS EN PARLER</div>
     </div>
     
     <!-- RIGHT INSPIRING CONNECTIONS -->
@@ -654,6 +1462,18 @@
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 14px; color: #c8a8ff;">
                 <span>⟡</span>
                 <span style="font-weight: 600; letter-spacing: 0.5px;">CONNEXIONS INSPIRANTES</span>
+    <!-- Inspiring Connections -->
+    <div class="inspiring-connections" id="inspiring-connections">
+        <div class="connections-title">
+            <span>⟡</span>
+            CONNEXIONS INSPIRANTES
+        </div>
+        
+        <div class="connection-story">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+            <div class="story-detail">
+                <h4>Marie a aidé Pierre pour son déménagement</h4>
+                <p>Besoin ↔ Temps ↔ Véhicule • Nantes • il y a 17 min</p>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -672,12 +1492,31 @@
                         <span style="font-size: 11px; color: #7a9;">à Bordeaux • il y a 41 min</span>
                     </div>
                 </div>
+        </div>
+        
+        <div class="connection-story">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+            <div class="story-detail">
+                <h4>Julie a trouvé un professeur de violon</h4>
+                <p>Envie d'apprendre ↔ Compétence • Bordeaux • il y a 41 min</p>
             </div>
             
             <div onclick="viewAllConnections()" style="margin-top: 22px; font-size: 13px; color: #7af; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
                 Toutes les connexions 
                 <span style="font-size: 20px; line-height: 14px;">›</span>
+        </div>
+        
+        <div class="connection-story">
+            <div class="story-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+            <div class="story-detail">
+                <h4>Paul a prêté son camion à Sophie</h4>
+                <p>Ressource ↔ Besoin • il y a 23 min</p>
             </div>
+        </div>
+        
+        <div onclick="viewAllConnections()" style="margin-top: 20px; font-size: 12px; color: var(--accent-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>Voir toutes</span>
+            <span style="font-size: 18px;">›</span>
         </div>
     </div>
     
@@ -697,23 +1536,75 @@
             <div class="value-icon">🧠</div>
             <div class="value-label">Intelligent</div>
             <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">L'IA comprend,<br>relie, suggère.</div>
+    <!-- Trust Panel -->
+    <div class="trust-panel" id="trust-panel">
+        <div class="trust-title">
+            <span>🔒</span>
+            PRINCIPE DE CONFIANCE
         </div>
         <div class="value">
             <div class="value-icon">🌍</div>
             <div class="value-label">Local &amp; Global</div>
             <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Agit près de chez vous,<br>connecte le monde.</div>
+        
+        <div class="trust-rule">Une intention peut être anonyme</div>
+        <div class="trust-rule">Une intention peut être locale</div>
+        <div class="trust-rule">Une intention peut être mondiale</div>
+        <div class="trust-rule">Une intention peut disparaître</div>
+        
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); font-size: 11px; color: var(--text-muted);">
+            La donnée n'est pas le produit • La connexion utile est le produit
         </div>
         <div class="value">
             <div class="value-icon">↗</div>
             <div class="value-label">Évolutif</div>
             <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Plus il grandit,<br>plus il aide.</div>
+    </div>
+    
+    <!-- Panel d'analyse d'intention en temps réel -->
+    <div id="intent-analysis-panel" style="
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(20, 10, 50, 0.8);
+        color: #e0d8f0;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 13px;
+        z-index: 99;
+        box-shadow: 0 0 35px -8px #00f7ff;
+        white-space: nowrap;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 247, 255, 0.3);
+    ">
+        <div style="font-size: 11px; color: #8877aa; text-transform: uppercase; letter-spacing: 1px;">
+            Analyse en cours...
         </div>
+        <div id="intent-analysis-text" style="margin-top: 4px; font-weight: 500;"></div>
     </div>
     
     <!-- INSTRUCTION -->
     <div style="position: absolute; bottom: 190px; left: 50%; transform: translateX(-50%); background: rgba(10,5,35,0.6); color: #99ddff; font-size: 13px; padding: 6px 22px 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; z-index: 60; box-shadow: 0 10px 30px -15px #000; white-space: nowrap;">
         <div style="width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px;">👇</div>
         <div>Faites glisser pour faire tourner le cube</div>
+    <!-- Face Labels on Cube -->
+    <div class="face-label" id="face-label-1">BESOIN</div>
+    <div class="face-label" id="face-label-2">AIDER</div>
+    <div class="face-label" id="face-label-3">PROPOSER</div>
+    <div class="face-label" id="face-label-4">CHERCHER</div>
+    <div class="face-label" id="face-label-5">RESSENTIR</div>
+    <div class="face-label" id="face-label-6">RÊVER</div>
+    
+    <!-- Constellation Overlay -->
+    <div class="constellation-overlay" id="constellation-overlay"></div>
+    
+    <!-- Intent Transform Feedback -->
+    <div class="intent-transform-feedback" id="intent-transform-feedback"></div>
+    
+    <!-- Mobile Instruction -->
+    <div class="mobile-cube-instruction" id="mobile-instruction">
+        Faites glisser le cube pour le faire tourner
     </div>
     
     <!-- Floating labels for faces -->
@@ -723,10 +1614,19 @@
     <div id="face-label-4" class="floating-label">CHERCHER</div>
     <div id="face-label-5" class="floating-label">RESSENTIR</div>
     <div id="face-label-6" class="floating-label">RÊVER</div>
+    <!-- Portal Entry (for transitions) -->
+    <div class="portal-entry" id="portal-entry">
+        <div style="color: var(--text-primary); font-size: 18px; line-height: 1.4;">
+            <strong>MONDE DES INTENTIONS</strong><br>
+            <span style="color: var(--text-secondary);">NEXUS • L'Internet des Intentions</span>
+        </div>
+    </div>
     
     <script>
         // THREE.JS SETUP
+        // ============ THREE.JS SETUP ============
         let scene, camera, renderer, cube, controls;
+        let facePlanes = [];
         let particles = [];
         let light1, light2;
         let time = 0;
@@ -736,6 +1636,9 @@
         let targetRotationX = 0;
         let currentRotationY = 0;
         let currentRotationX = 0;
+        let intentsLumieres = [];
+        let connectionLines = [];
+        let animationTime = 0;
         let isDragging = false;
         let previousMouseX = 0;
         let previousMouseY = 0;
@@ -747,30 +1650,56 @@
             0x00ff9f, // emerald
             0xffee00, // yellow
             0xff5500  // orange
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let targetRotation = { y: 0, x: 0 };
+        let currentRotation = { y: 0, x: 0 };
+        let isInputFocused = false;
+        
+        // Face definitions from the concept
+        const faceDefinitions = [
+            { id: 1, label: 'BESOIN', labelColor: '#00f7ff', description: 'Aide, ressources, solutions, écoute', colorName: 'bleu électrique' },
+            { id: 2, label: 'AIDER', labelColor: '#ff00cc', description: 'Temps, compétences, disponibilité', colorName: 'magenta' },
+            { id: 3, label: 'PROPOSER', labelColor: '#7b5eff', description: 'Objets, lieux, services, ressources', colorName: 'violet' },
+            { id: 4, label: 'CHERCHER', labelColor: '#00ff9f', description: 'Information, personne, expérience, opportunité', colorName: 'cyan / émeraude' },
+            { id: 5, label: 'RESSENTIR', labelColor: '#ffee00', description: 'Solitude, doute, envie, curiosité, inspiration', colorName: 'jaune solaire' },
+            { id: 6, label: 'RÊVER', labelColor: '#ff5500', description: 'Projet, ambition, création, rencontre, futur', colorName: 'orange' }
         ];
         
+        // Initialize Three.js
         function initThree() {
             const container = document.getElementById('canvas-container');
             
             // Scene
             scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x050308, 10, 30);
             
             // Camera
             camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 0, 6.5);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 2, 8);
             
             // Renderer
             renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 alpha: true
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true, 
+                alpha: true,
+                powerPreference: 'high-performance'
             });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
             container.appendChild(renderer.domElement);
             
             // LIGHTS
             const ambient = new THREE.AmbientLight(0x9988ff, 0.6);
+            // Lights - Premium setup for crystal
+            const ambient = new THREE.AmbientLight(0x2a1b40, 0.4);
             scene.add(ambient);
             
             light1 = new THREE.PointLight(0x00f7ff, 3.5, 100);
@@ -809,12 +1738,40 @@
                 transparent: true,
                 opacity: 0.45
             });
+            // Main light - creates caustics
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            mainLight.position.set(10, 15, 10);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.width = 2048;
+            mainLight.shadow.mapSize.height = 2048;
+            mainLight.shadow.camera.near = 0.5;
+            mainLight.shadow.camera.far = 50;
+            mainLight.shadow.radius = 10;
+            scene.add(mainLight);
+            
+            // Secondary light
+            const secondaryLight = new THREE.DirectionalLight(0xff00cc, 0.8);
+            secondaryLight.position.set(-10, -8, -10);
+            scene.add(secondaryLight);
+            
+            // Fill light for glow
+            const fillLight = new THREE.HemisphereLight(0x4a2a5a, 0x0d0715, 0.6);
+            scene.add(fillLight);
+            
+            // Crystal cube
+            createCrystalCube();
+            
+            // Particles / constellation
+            createParticles();
             
             const wireGeo = new THREE.EdgesGeometry(cubeGeometry);
             const wireframe = new THREE.LineSegments(wireGeo, wireMat);
             cube.add(wireframe);
+            // Connection networks
+            createConnectionNetwork();
             
             // Create colored transparent planes for each face
+            // Face planes with glass effect
             createFacePlanes();
             
             // Add inner core
@@ -827,41 +1784,215 @@
             });
             const core = new THREE.Mesh(coreGeo, coreMat);
             cube.add(core);
+            // Inner energy core
+            createEnergyCore();
             
             // PARTICLES / CONSTELLATION
             createParticles();
+            // Rays emanating from cube
+            createRays();
             
             // CONTROLS
+            // Setup controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.12;
+            controls.dampingFactor = 0.15;
             controls.enableZoom = true;
             controls.minDistance = 3.5;
             controls.maxDistance = 14;
+            controls.minDistance = 4;
+            controls.maxDistance = 16;
             controls.enablePan = false;
             controls.rotateSpeed = 0.6;
+            controls.rotateSpeed = 0.3;
             
             // Mouse interaction
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('mousedown', onMouseDown);
             window.addEventListener('mouseup', onMouseUp);
+            setupMouseInteraction();
             
             // Touch support
             window.addEventListener('touchstart', onTouchStart);
             window.addEventListener('touchmove', onTouchMove);
             window.addEventListener('touchend', onTouchEnd);
+            // Touch interaction
+            setupTouchInteraction();
             
             // Resize
+            // Resize handler
             window.addEventListener('resize', onResize);
             
             // Add subtle rotating rings
             createRings();
             
+            // Start animation loop
             animate();
         }
         
+        // ============ CREATE CRYSTAL CUBE ============
+        function createCrystalCube() {
+            // Main cube geometry - slightly subdivided for facet detail
+            const cubeGeometry = new THREE.BoxGeometry(3.2, 3.2, 3.2, 8, 8, 8);
+            
+            // Custom shader-like material for crystal
+            const cubeMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                    uColor1: { value: new THREE.Color(0x00f7ff) }, // cyan
+                    uColor2: { value: new THREE.Color(0xff00cc) }, // magenta
+                    uColor3: { value: new THREE.Color(0x7b5eff) }, // violet
+                    uColor4: { value: new THREE.Color(0x00d4aa) }, // emerald
+                    uColor5: { value: new THREE.Color(0xffee00) }, // yellow
+                    uColor6: { value: new THREE.Color(0xff5500) }, // orange
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vPosition;
+                    varying vec3 vNormal;
+                    
+                    void main() {
+                        vUv = uv;
+                        vPosition = position;
+                        vNormal = normal;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    precision highp float;
+                    
+                    varying vec2 vUv;
+                    varying vec3 vPosition;
+                    varying vec3 vNormal;
+                    
+                    uniform float uTime;
+                    uniform vec3 uColor1;
+                    uniform vec3 uColor2;
+                    uniform vec3 uColor3;
+                    uniform vec3 uColor4;
+                    uniform vec3 uColor5;
+                    uniform vec3 uColor6;
+                    uniform vec2 uResolution;
+                    
+                    // Noise function for organic texture
+                    float noise(vec2 p) {
+                        return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+                    }
+                        
+                    // Refraction effect based on view angle
+                    vec3 refract(vec3 I, vec3 N, float eta) {
+                    float k = 1.0 - eta * eta * (1.0 - pow(dot(N, I), 2.0));
+                    if (k < 0.0) return vec3(0.0);
+                    return eta * I - (eta * dot(N I) + sqrt(k)) * N;
+                    }
+                        
+                    void main() {
+                        // Normal mapping for facet texture
+                        vec3 normal = normalize(vNormal);
+                        
+                        // Add slight bumpiness for crystalline texture
+                        float bump = noise(vUv * 10.0 + uTime * 0.1) * 0.05;
+                        normal += normal * bump;
+                        normal = normalize(normal);
+                        
+                        // Calculate view direction
+                        vec3 viewDir = normalize(cameraPosition - vPosition);
+                        
+                        // Calculate refraction
+                        vec3 refracted = refract(normal, viewDir, 1.52);
+                        
+                        // Calculate reflections
+                        vec3 reflectDir = reflect(-viewDir, normal);
+                        float fresnel = pow(1.0 - dot(viewDir, normal), 3.0);
+                        
+                        // Base color per face (determined by face ID in shader)
+                        // We'll use a different approach - per-face colors via vertex colors
+                        
+                        // Crystal internal light emission
+                        float internalLight = 0.0;
+                        float glowFactor = 0.0;
+                        
+                        // Check which face we're looking at based on position
+                        float faceIdentifier = 0.0;
+                        
+                        // Add caustics pattern
+                        float caustics = sin(vUv.x * 50.0 + uTime * 2.0) * sin(vUv.y * 50.0 + uTime * 2.0) * 0.03;
+                        
+                        // Bloom/glow effect for bright areas
+                        vec3 bloom = vec3(0.0);
+                        if (fresnel > 0.5) {
+                            bloom = vec3(0.5, 0.3, 0.8) * fresnel * 0.5;
+                        }
+                        
+                        // Dispersion - separate RGB slightly based on angle
+                        vec3 colorDispersed = mix(
+                            texture2D( map, vUv ).rgb,
+                            vec3(0.8, 0.6, 1.0),
+                            fresnel * 0.2
+                        );
+                        
+                        // Each face has its own color essence
+                        // Face 1: Cyan/bleu électrique
+                        // Face 2: Magenta  
+                        // Face 3: Violet
+                        // Face 4: Emerald/cyan
+                        // Face 5: Yellow
+                        // Face 6: Orange
+                        
+                        vec3 faceColor;
+                        float viewDot = abs(dot(normal, viewDir));
+                        
+                        // Determine face based on normal direction
+                        if (vNormal.x > 0.5) faceColor = uColor6; // Orange face (right)
+                        else if (vNormal.x < -0.5) faceColor = uColor5; // Yellow face (left)
+                        else if (vNormal.y > 0.5) faceColor = uColor1; // Cyan face (top)
+                        else if (vNormal.y < -0.5) faceColor = uColor2; // Magenta face (bottom)
+                        else if (vNormal.z > 0.5) faceColor = uColor3; // Violet face (front)
+                        else if (vNormal.z < -0.5) faceColor = uColor4; // Emerald face (back)
+                        else faceColor = uColor1; // Default
+                        
+                        // Add internal glow based on view angle
+                        glowFactor = fresnel * 0.8;
+                        internalLight = glowFactor * 0.6;
+                        
+                        // Final color with crystal properties
+                        vec3 finalColor = faceColor * (0.3 + 0.7 * viewDot) + bloom;
+                        
+                        // Add refracted color for depth
+                        vec3 refractedColor = refracted * (0.1 * fresnel);
+                        
+                        // Combine with internal emission
+                        vec3 finalEmissive = faceColor * internalLight * 2.0;
+                        
+                        // Overall transparency with fresnel
+                        float transparency = 0.6 - 0.4 * viewDot;
+                        
+                        // Add some subtle animation to the facets
+                        float facetAnimation = sin(uTime * 2.0 + vUv.x * 10.0 + vUv.y * 10.0) * 0.1;
+                        
+                        // Final output
+                        gl_F_FragColor = vec4(finalColor + refractedColor + finalEmissive, transparency * (1.0 - facetAnimation));
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            
+            cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+            scene.add(cube);
+            
+            // Store reference to material for updates
+            cube.userData.material = cubeMaterial;
+            cube.userData.time = 0;
+        }
+        
+        // ============ CREATE FACE PLANES ============
         function createFacePlanes() {
             const size = 2.75;
+            const size = 3.15;
             const planeGeo = new THREE.PlaneGeometry(size, size);
             
             // FRONT
@@ -870,6 +2001,9 @@
                 new THREE.MeshBasicMaterial({
                     color: faceColors[0],
                     side: THREE.DoubleSide,
+            for (let i = 0; i < 6; i++) {
+                const plane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
                     transparent: true,
                     opacity: 0.12,
                     blending: THREE.AdditiveBlending
@@ -911,45 +2045,109 @@
             
             // Store for later animation
             cube.userData.facePlanes = [plane1, plane2, plane3, plane4, plane5, plane6];
+                    opacity: 0.05,
+                    side: THREE.DoubleSide,
+                    depthWrite: false
+                }));
+                
+                // Position each plane at the center of each face
+                switch(i) {
+                    case 0: // Front (positive z)
+                        plane.rotation.z = 0;
+                        plane.position.z = 1.62;
+                        break;
+                    case 1: // Back (negative z)
+                        plane.rotation.z = Math.PI;
+                        plane.position.z = -1.62;
+                        break;
+                    case 2: // Right (positive x)
+                        plane.rotation.y = Math.PI / 2;
+                        plane.position.x = 1.62;
+                        break;
+                    case 3: // Left (negative x)
+                        plane.rotation.y = -Math.PI / 2;
+                        plane.position.x = -1.62;
+                        break;
+                    case 4: // Top (positive y)
+                        plane.rotation.x = -Math.PI / 2;
+                        plane.position.y = 1.62;
+                        break;
+                    case 5: // Bottom (negative y)
+                        plane.rotation.x = Math.PI / 2;
+                        plane.position.y = -1.62;
+                        break;
+                }
+                
+                plane.userData.faceId = i;
+                cube.add(plane);
+                facePlanes.push(plane);
+            }
         }
         
+        // ============ CREATE PARTICLES ============
         function createParticles() {
             const particleCount = 420;
+            const particleCount = 500;
             const geometry = new THREE.BufferGeometry();
+            
             const positions = new Float32Array(particleCount * 3);
             const colors = new Float32Array(particleCount * 3);
             const sizes = new Float32Array(particleCount);
             
             const colorOptions = [0x00ffff, 0xff00ff, 0x88ffaa, 0xffee66];
+            const colorOptions = [
+                new THREE.Color(0x00ffff),
+                new THREE.Color(0xff00ff),
+                new THREE.Color(0x00d4aa),
+                new THREE.Color(0xff6b6b),
+                new THREE.Color(0xffd93d),
+                new THREE.Color(0x88aaff)
+            ];
             
             for (let i = 0; i < particleCount * 3; i += 3) {
                 const radius = 6 + Math.random() * 9;
+            for (let i = 0; i < particleCount; i++) {
+                // Spherical distribution around the cube
+                const radius = 5 + Math.random() * 10;
                 const theta = Math.random() * Math.PI * 2;
                 const phi = Math.acos(2 * Math.random() - 1);
                 
                 positions[i]     = radius * Math.sin(phi) * Math.cos(theta);
                 positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
                 positions[i + 2] = radius * Math.cos(phi);
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
                 
                 const chosenColor = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
                 colors[i]     = chosenColor.r;
                 colors[i + 1] = chosenColor.g;
                 colors[i + 2] = chosenColor.b;
+                // Color based on intention dimension
+                const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
                 
                 sizes[i / 3] = Math.random() * 3.5 + 1.5;
+                // Size
+                sizes[i] = Math.random() * 2 + 0.5;
             }
             
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
             geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
             
             const material = new THREE.PointsMaterial({
                 size: 0.08,
+                size: 0.1,
                 vertexColors: true,
                 transparent: true,
                 opacity: 0.75,
+                opacity: 0.6,
                 blending: THREE.AdditiveBlending,
                 depthTest: false
+                depthTest: true,
+                sizeAttenuation: true
             });
             
             const pointCloud = new THREE.Points(geometry, material);
@@ -962,35 +2160,89 @@
                 const ringGeo = new THREE.TorusGeometry(4.2 + i * 1.1, 0.015, 32, 120);
                 const ringMat = new THREE.MeshBasicMaterial({
                     color: i === 0 ? 0x00ffff : (i === 1 ? 0xff00cc : 0xaaffff),
+            
+            // Also add some smaller particles closer in
+            for (let i = 0; i < 100; i++) {
+                const smallGeo = new THREE.SphereGeometry(0.05, 4, 4);
+                const smallMat = new THREE.MeshBasicMaterial({
+                    color: colorOptions[Math.floor(Math.random() * colorOptions.length)],
                     transparent: true,
                     opacity: 0.1 + i * 0.07,
                     blending: THREE.AdditiveBlending,
                     side: THREE.DoubleSide
+                    opacity: Math.random() * 0.5 + 0.3
                 });
                 const ring = new THREE.Mesh(ringGeo, ringMat);
                 ring.rotation.x = Math.random() * Math.PI;
                 ring.userData = { speed: 0.0008 + i * 0.0006, axis: i };
                 scene.add(ring);
                 particles.push(ring); // reuse array
+                
+                const smallPos = new THREE.Object3D();
+                smallPos.radius = 3 + Math.random() * 7;
+                const angle = Math.random() * Math.PI * 2;
+                const height = (Math.random() - 0.5) * 4;
+                
+                smallPos.position.set(
+                    smallPos.radius * Math.cos(angle),
+                    height,
+                    smallPos.radius * Math.sin(angle)
+                );
+                
+                const smallMesh = new THREE.Mesh(smallGeo, smallMat);
+                smallMesh.position.copy(smallPos.position);
+                cube.add(smallMesh);
+                particles.push(smallMesh);
             }
         }
         
         function onMouseMove(e) {
             mouseX = (e.clientX / window.innerWidth) * 2 - 1;
             mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        // ============ CREATE CONNECTION NETWORK ============
+        function createConnectionNetwork() {
+            // Create subtle connection lines between particles
+            const lineCount = 200;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(lineCount * 3 * 2); // 2 points per line
+            const colors = new Float32Array(lineCount * 3 * 2);
+            const lineVisibility = new Float32Array(lineCount);
             
             if (isDragging) {
                 const deltaX = e.clientX - previousMouseX;
                 const deltaY = e.clientY - previousMouseY;
+            for (let i = 0; i < lineCount; i++) {
+                lineVisibility[i] = Math.random() * 0.5 + 0.1;
                 
                 targetRotationY += deltaX * 0.0045;
                 targetRotationX += deltaY * 0.0035;
+                // Start point near cube
+                const startAngle = Math.random() * Math.PI * 2;
+                const startRadius = 2 + Math.random() * 2;
+                positions[i * 6] = startRadius * Math.cos(startAngle);
+                positions[i * 6 + 1] = (Math.random() - 0.5) * 3;
+                positions[i * 6 + 2] = startRadius * Math.sin(startAngle);
                 
                 // Clamp vertical rotation
                 targetRotationX = Math.max(-1.1, Math.min(1.1, targetRotationX));
+                // End point further out
+                const endAngle = Math.random() * Math.PI * 2;
+                const endRadius = 5 + Math.random() * 8;
+                positions[i * 6 + 3] = endRadius * Math.cos(endAngle);
+                positions[i * 6 + 4] = (Math.random() - 0.5) * 5;
+                positions[i * 6 + 5] = endRadius * Math.sin(endAngle);
                 
                 previousMouseX = e.clientX;
                 previousMouseY = e.clientY;
+                // Color
+                const colorIdx = Math.floor(Math.random() * colorOptions.length);
+                const c = colorOptions[colorIdx];
+                colors[i * 6] = c.r;
+                colors[i * 6 + 1] = c.g;
+                colors[i * 6 + 2] = c.b;
+                colors[i * 6 + 3] = c.r;
+                colors[i * 6 + 4] = c.g;
+                colors[i * 6 + 5] = c.b;
             }
             
             // Update floating labels
@@ -1021,22 +2273,133 @@
         
         function onTouchMove(e) {
             if (!isDragging || e.touches.length !== 1) return;
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('visibility', new THREE.BufferAttribute(lineVisibility, 1));
             
             const deltaX = e.touches[0].clientX - previousMouseX;
             const deltaY = e.touches[0].clientY - previousMouseY;
+            const lineMaterial = new THREE.LineBasicMaterial({
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending,
+                vertexColors: true
+            });
             
             targetRotationY += deltaX * 0.006;
             targetRotationX += deltaY * 0.005;
             targetRotationX = Math.max(-1.4, Math.min(1.4, targetRotationX));
+            const connectionLines = new THREE.LineSegments(geometry, lineMaterial);
+            scene.add(connectionLines);
+            connectionLines.userData.type = 'connections';
+        }
+        
+        // ============ CREATE ENERGY CORE ============
+        function createEnergyCore() {
+            const coreGeo = new THREE.IcosahedronGeometry(1.2, 2);
+            const coreMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 }
+                },
+                vertexShader: `
+                    precision highp float;
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        vNormal = normal;
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    precision highp float;
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    uniform float uTime;
+                    
+                    void main() {
+                        vec3 normal = normalize(vNormal);
+                        
+                        // Create organic pulsating pattern
+                        float pulse = sin(uTime * 2.0) * 0.5 + 0.5;
+                        float pattern = sin(vUv.x * 10.0 + uTime) * sin(vUv.y * 10.0 + uTime) * 0.5;
+                        
+                        // Color shift over time
+                        vec3 color = mix(
+                            vec3(0x00f7ff),
+                            vec3(0xff00cc),
+                            pulse
+                        );
+                        
+                        // Add glow
+                        float glow = pow(1.0 - dot(normal, vec3(0, 0, 1)), 2.0);
+                        
+                        gl_FragColor = vec4(color * (0.5 + 0.5 * pulse + glow * 0.3), 0.8);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
             
             previousMouseX = e.touches[0].clientX;
             previousMouseY = e.touches[0].clientY;
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            core.position.set(0, 0.1, 0); // Slight offset
+            cube.add(core);
+            core.userData.type = 'energy-core';
             
             e.preventDefault();
+            // Rotate core animation
+            core.userData.rotationSpeed = 0.3;
         }
         
         function onTouchEnd() {
             isDragging = false;
+        // ============ CREATE RAYS ============
+        function createRays() {
+            const rayCount = 36;
+            const rays = [];
+            
+            for (let i = 0; i < rayCount; i++) {
+                const rayGroup = new THREE.Group();
+                
+                // Ray line
+                const rayGeo = new THREE.BufferGeometry();
+                const rayPositions = new Float32Array([0, 0, 0, 0, 0, 3.5]);
+                rayGeo.setAttribute('position', new THREE.BufferAttribute(rayPositions, 3));
+                
+                const rayMat = new THREE.LineBasicMaterial({
+                    color: new THREE.Color().setHex(Math.random() * 0xffffff),
+                    transparent: true,
+                    opacity: 0.4,
+                    linewidth: 1
+                });
+                
+                const ray = new THREE.Line(rayGeo, rayMat);
+                ray.rotation.z = (Math.PI * 2 / rayCount) * i;
+                
+                // Ray origin point
+                const originGeo = new THREE.SphereGeometry(0.1, 6, 6);
+                const originMat = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHex(Math.random() * 0xffffff),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const origin = new THREE.Mesh(originGeo, originMat);
+                
+                rayGroup.add(ray);
+                rayGroup.add(origin);
+                rayGroup.rotation.z = (Math.PI * 2 / rayCount) * i;
+                rayGroup.userData.angle = (Math.PI * 2 / rayCount) * i;
+                rayGroup.userData.intensity = Math.random() * 0.5 + 0.3;
+                
+                scene.add(rayGroup);
+                rays.push(rayGroup);
+            }
+            
+            // Store for animation
+            cube.userData.rays = rays;
         }
         
         function updateFaceLabels() {
@@ -1049,15 +2412,35 @@
                 document.getElementById('face-label-5'),
                 document.getElementById('face-label-6')
             ];
+        // ============ SETUP MOUSE INTERACTION ============
+        function setupMouseInteraction() {
+            let isDragging = false;
+            let dragStart = { x: 0, y: 0 };
             
             const texts = ["BESOIN", "PROPOSER", "AIDER", "CHERCHER", "RESSENTIR", "RÊVER"];
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    isDragging = true;
+                    dragStart = { x: e.clientX, y: e.clientY };
+                    controls.enabled = false;
+                }
+            });
             
             for (let i = 0; i < 6; i++) {
                 const label = labels[i];
                 if (!label) continue;
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+                controls.enabled = true;
+            });
+            
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
                 
                 // Randomly show labels based on cube rotation
                 const shouldShow = Math.random() > 0.7;
+                const deltaX = e.clientX - dragStart.x;
+                const deltaY = e.clientY - dragStart.y;
                 
                 if (shouldShow) {
                     label.textContent = texts[i];
@@ -1068,14 +2451,57 @@
                     label.style.opacity = 0;
                 }
             }
+                targetRotation.y += deltaX * 0.008;
+                targetRotation.x += deltaY * 0.005;
+                targetRotation.x = Math.max(-1.5, Math.min(1.5, targetRotation.x));
+                
+                dragStart = { x: e.clientX, y: e.clientY };
+            });
+            
+            // On mouse leave, start slow auto-rotation
+            renderer.domElement.addEventListener('mouseleave', () => {
+                // Start gentle auto-rotation when not dragging
+            });
         }
         
         function onResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        // ============ SETUP TOUCH INTERACTION ============
+        function setupTouchInteraction() {
+            let isDragging = false;
+            
+            renderer.domElement.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    dragStart = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY
+                    };
+                    controls.enabled = false;
+                }
+            }, { passive: false });
+            
+            renderer.domElement.addEventListener('touchend', () => {
+                isDragging = false;
+                controls.enabled = true;
+            });
+            
+            renderer.domElement.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                e.preventDefault();
+                
+                const deltaX = e.touches[0].clientX - dragStart.x;
+                const deltaY = e.touches[0].clientY - dragStart.y;
+                
+                targetRotation.y += deltaX * 0.01;
+                targetRotation.x += deltaY * 0.01;
+                targetRotation.x = Math.max(-1.8, Math.min(1.8, targetRotation.x));
+            }, { passive: false });
         }
         
+        // ============ ANIMATION LOOP ============
         function animate() {
             requestAnimationFrame(animate);
             time += 0.016;
@@ -1099,10 +2525,41 @@
                         plane.material.opacity = 0.12 + Math.sin(time * 2 + i) * 0.05;
                     });
                 }
+            
+            animationTime += 0.016;
+            
+            // Update cube shader time
+            if (cube && cube.userData.material) {
+                cube.userData.material.uniforms.uTime.value = animationTime;
+            }
+            
+            // Gentle autonomous rotation
+            if (!isDragging) {
+                currentRotation.y = currentRotation.y * 0.95 + targetRotation.y * 0.05;
+                currentRotation.x = currentRotation.x * 0.95 + targetRotation.x * 0.05;
                 
                 // Rotate inner core
                 if (cube.children.length > 1) {
                     cube.children[1].rotation.y = time * 0.4;
+                if (cube) {
+                    cube.rotation.y = currentRotation.y;
+                    cube.rotation.x = currentRotation.x * 0.4;
+                }
+            }
+            
+            // Animate face planes
+            if (facePlanes && cube) {
+                facePlanes.forEach((plane, i) => {
+                    plane.material.opacity = 0.03 + Math.sin(animationTime * 2 + i) * 0.02;
+                });
+            }
+            
+            // Animate energy core
+            if (particles.length > 0) {
+                const core = cube.children.find(c => c.userData?.type === 'energy-core');
+                if (core) {
+                    core.rotation.y = animationTime * 0.4;
+                    core.material.uniforms.uTime.value = animationTime;
                 }
             }
             
@@ -1114,6 +2571,10 @@
                     if (p.userData.axis === 0) p.rotation.z = time * p.userData.speed;
                     if (p.userData.axis === 1) p.rotation.x = time * p.userData.speed * 1.4;
                     if (p.userData.axis === 2) p.rotation.y = time * p.userData.speed * 0.7;
+                if (p.isPoints) {
+                    p.rotation.y = animationTime * 0.02;
+                } else if (p.userData && p.userData.type === 'energy-core') {
+                    // Already handled above
                 }
             });
             
@@ -1123,20 +2584,40 @@
                 light1.position.z = Math.cos(time * 0.6) * 9;
                 light2.position.x = Math.cos(time * 0.9) * 10;
                 light2.position.z = Math.sin(time * 0.9) * -8;
+            // Animate rays
+            if (cube.userData.rays) {
+                cube.userData.rays.forEach((rayGroup, i) => {
+                    const ray = rayGroup.children[0];
+                    if (ray) {
+                        ray.position.y = Math.sin(animationTime * 2 + rayGroup.userData.angle) * 0.5;
+                        ray.material.opacity = 0.3 + rayGroup.userData.intensity * Math.sin(animationTime * 3);
+                    }
+                    rayGroup.rotation.y = animationTime * 0.01;
+                });
             }
             
             // Camera gentle bob
             if (camera) {
                 camera.position.y = Math.sin(time * 0.6) * 0.6;
                 camera.lookAt(0, 0, 0);
+            // Update lights
+            const lightProgress = animationTime * 0.5;
+            
+            // subtle light animation
+            if (scene.children.length > 0) {
+                // Animate some emissive properties
             }
             
             if (controls) controls.update();
+            // Update face labels based on rotation
+            updateFaceLabels();
             
             // Update live numbers
             if (Math.random() > 0.96) {
                 incrementLiveStats();
             }
+            // Update constellation based on intentions
+            updateConstellation();
             
             renderer.render(scene, camera);
         }
@@ -1146,26 +2627,137 @@
             let current = parseInt(intentsEl.innerText.replace(' ', ''));
             current += Math.floor(Math.random() * 4) + 1;
             intentsEl.innerText = current.toLocaleString('fr-FR');
+        // ============ UPDATE FACE LABELS WITH INTENT SCORES ============
+        function updateFaceLabels() {
+            const labels = document.querySelectorAll('.face-label');
+            
+            if (!cube) return;
             
             const linksEl = document.getElementById('stat-links');
             let links = parseInt(linksEl.innerText.replace(' ', ''));
             if (Math.random() > 0.7) {
                 links += 1;
                 linksEl.innerText = links.toLocaleString('fr-FR');
+            // Récupérer les scores d'intention stockés
+            const scores = cube.userData?.intentScores || {};
+            
+            // Get cube's current rotation to determine which face is frontal
+            const rotationY = cube.rotation.y;
+            const rotationX = cube.rotation.x;
+            
+            // Determine which face is closest to frontal based on rotation
+            const faceAngles = [
+                { angle: 0, label: 'BESOIN', id: 1 },     // Front
+                { angle: 0, label: 'AIDER', id: 2 },      // Back
+                { angle: Math.PI / 2, label: 'PROPOSER', id: 3 }, // Right
+                { angle: -Math.PI / 2, label: 'CHERCHER', id: 4 }, // Left
+                { angle: Math.PI, label: 'RESSENTIR', id: 5 }, // Top (when rotated)
+                { angle: -Math.PI, label: 'RÊVER', id: 6 }  // Bottom (when rotated)
+            ];
+            
+            // Show labels with scores based on intent analysis
+            for (let i = 0; i < labels.length; i++) {
+                const faceId = i + 1;
+                const score = Math.round(scores[faceId] || 0);
+                
+                // Afficher le label avec le pourcentage
+                if (score > 20) { // Seuil minimum pour afficher
+                    labels[i].textContent = `${faceDefinitions[i - 1].label}: ${score}%`;
+                    labels[i].style.opacity = 0.8;
+                    labels[i].style.transform = `translate3d(${50 + Math.random() * 100}px, ${100 + Math.random() * 300}px, 0)`;
+                    // Couleur selon la dimension
+                    const info = intentEngine.getDimensionInfo(faceId);
+                    labels[i].style.color = info.color;
+                } else {
+                    labels[i].textContent = faceDefinitions[i - 1].label;
+                    labels[i].style.opacity = 0.3;
+                }
             }
         }
         
         function submitIntent() {
             const input = document.getElementById('intent-input');
             const val = input.value.trim();
+        // ============ NEXUS V3 - Intent Engine Révolutionnaire ============
+        // Architecture en 7 couches : Expression → Compréhension → Contexte → Intention → Potentiel → Possibilités → Action
+        // Capable de comprendre des intentions implicites, temporelles et ambiguës
+        
+        // ============ CORE ENGINE: NEXUSIntentEngine ============
+        class NEXUSIntentEngine {
+            constructor() {
+                // Couche 1: Analyse expressive - que dit l'utilisateur réellement
+                this.expression = {};
+                
+                // Couche 2: Compréhension sémantique - signification profonde
+                this.comprehension = {};
+                
+                // Couche 3: Contexte situationnel - contexte implicite
+                this.contexte = {};
+                
+                // Couche 4: Intention clarifiée - ce qui est vraiment voulu
+                this.intention = {};
+                
+                // Couche 5: Potentiel disponible - capacités et ressources
+                this.potentiel = {};
+                
+                // Couche 6: Possibilités émergentes - que devient possible
+                this.possibilites = {};
+                
+                // Couche 7: Recommandation d'action - prochaine étape
+                this.action = {};
+                
+                // État de confiance
+                this.confiance = 1; // 0 = très peu confiant, 1 = très confiant
+                
+                // Historique pour reconnaissance de patterns
+                this.historique = [];
+            }
             
             if (!val) return;
+            // === COUCHE 1: EXPRESSION ===
+            analyserExpression(texte) {
+                this.expression = {
+                    texteOriginal: texte,
+                    texteNormalise: texte.toLowerCase().trim(),
+                    longueur: texte.length,
+                    aQuestionMark: texte.endsWith('?'),
+                    aExclamation: texte.endsWith('!'),
+                    aPoint: texte.endsWith('.'),
+                    contientNegation: texte.toLowerCase().includes('ne') || texte.toLowerCase().includes('pas') || texte.toLowerCase().includes('plus'),
+                    contientModalite: /(pourrait|aimerais|j\'envisage|peux|suis en train)/i.test(texte),
+                    contientAbsolu: /(toujours|jamais|tout|rien|tous les)/i.test(texte)
+                };
+                
+                return this.expression;
+            }
             
             // React to input
             if (cube) {
                 // Flash the cube
                 cube.material.emissive = new THREE.Color(0xaaffff);
                 cube.material.emissiveIntensity = 2.5;
+            // === COUCHE 2: COMPRÉHENSION SÉMANTIQUE ===
+            comprehendre(texte) {
+                const lower = texte.toLowerCase();
+                const comprehension = {
+                    // Détection d'intentions principales
+                    intentionsPrincipales: this._detecterIntentionsPrincipales(lower),
+                    
+                    // État émotionnel implicite
+                    etatEmotionnel: this._analyserEtatEmotionnel(lower),
+                    
+                    // Contraintes implicites
+                    contraintes: this._extraireContraintes(lower),
+                    
+                    // Hypothèses sur le contexte
+                    hypothesesContexte: this._hypotheserContexte(lower),
+                    
+                    // Niveau d'ambiguïté
+                    niveauAmbiguite: this._calculerAmbiguite(lower),
+                    
+                    // Mots-clés trouvés (avec poids)
+                    motsCles: this._extraireMotsClesAvecPoids(lower)
+                };
                 
                 setTimeout(() => {
                     if (cube) {
@@ -1173,13 +2765,75 @@
                         cube.material.emissiveIntensity = 0.6;
                     }
                 }, 520);
+                this.comprehension = comprehension;
+                return comprehension;
+            }
+            
+            // === COUCHE 3: CONTEXTE SITUATIONNEL ===
+            analyserContexte(texte) {
+                const lower = texte.toLowerCase();
+                const contexte = {
+                    // Nouveau dans un lieu
+                    nouveauLieu: /(viens d\'arriver|nouveau ici|déménage|emménage)/i.test(lower),
+                    
+                    // Situation professionnelle
+                    contexteProfessionnel: /(travaille|boulot|tâche|projet|bureau)/i.test(lower),
+                    
+                    // Retraite ou fin de carrière
+                    retraite: /(retraité|fin de carrière|après travail|maintenant que)/i.test(lower),
+                    
+                    // Enfant qui est parti
+                    enfantsPartis: /(enfants ont grandi|enfants partis|maison vide)/i.test(lower),
+                    
+                    // Disponibilité temporelle
+                    disponibiliteTemporelle: this._analyserDisponibiliteTemporelle(lower),
+                    
+                    // État relationnel
+                    etatRelationnel: this._analyserEtatRelationnel(lower),
+                    
+                    // Niveau d'urgence
+                    urgence: this._determinerUrgence(lower),
+                    
+                    // Clé de lecture du système
+                    clereDeLecture: this._genererCleDeLecture(lower)
+                };
                 
                 // Add a few extra particles
                 createBurstParticles();
+                this.contexte = contexte;
+                return contexte;
             }
             
             // Show a temporary confirmation
             showConfirmationToast(val);
+            // === COUCHE 4: INTENTION CLARIFIÉE ===
+            clarifierIntention(texte, comprehension, contexte) {
+                const intention = {
+                    // Désir principal exprimé ou implicite
+                    desirPrincipal: this._extraireDesirPrincipal(texte, comprehension),
+                    
+                    // Besoin réel (différent du désir)
+                    besoinReel: this._extraireBesoinReel(texte, comprehension, contexte),
+                    
+                    // Problème concret mentionné ou implicite
+                    problemeConcret: this._extraireProblemeConcret(texte, comprehension),
+                    
+                    // Horizon temporel
+                    horizonTemporel: this._determinerHorizonTemporel(texte, contexte),
+                    
+                    // Niveau d'engagement
+                    engagement: this._calculerEngagement(texte, comprehension),
+                    
+                    // Direction potentielle
+                    directionPotentielle: this._extraireDirectionPotentielle(texte, comprehension),
+                    
+                    // Certitude du système
+                    certitudeSyst: this._calculerCertitude(comprehension, contexte)
+                };
+                
+                this.intention = intention;
+                return intention;
+            }
             
             // Clear input
             input.value = '';
@@ -1187,6 +2841,31 @@
         
         function createBurstParticles() {
             if (!scene) return;
+            // === COUCHE 5: POTENTIEL ===
+            evaluerPotentiel(texte, comprehension, intention, contexte) {
+                const potentiel = {
+                    // Capacités personnelles mentionnées ou implicites
+                    capacitesPersonnelles: this._extraireCapacites(texte, comprehension),
+                    
+                    // Ressources possédées
+                    ressourcesPossedees: this._extraireRessources(texte, comprehension),
+                    
+                    // Contraintes actuelles
+                    contraintesActuelles: this._extraireContraintesActuelles(texte, comprehension),
+                    
+                    // Disponibilités réelles
+                    disponibilitesReelles: this._extraireDisponibilites(texte, comprehension, intention),
+                    
+                    // Potentiel dormant
+                    potentielDormant: this._identifierPotentielDormant(texte, comprehension),
+                    
+                    // Adéquation besoins-capacités
+                    adéquation: this._calculerAdéquationBesoinsCapacites(texte, comprehension, intention)
+                };
+                
+                this.potentiel = potentiel;
+                return potentiel;
+            }
             
             for (let i = 0; i < 35; i++) {
                 const geometry = new THREE.SphereGeometry(0.05, 5, 5);
@@ -1196,17 +2875,96 @@
                     opacity: 1,
                     blending: THREE.AdditiveBlending
                 });
+            // === COUCHE 6: POSSIBILITÉS ÉMERGENTES ===
+            determinerPossibilites(texte, comprehension, intention, potentiel, contexte) {
+                const possibilites = {
+                    // Types de connexions possibles
+                    typesConnexions: this._determinerTypesConnexions(texte, comprehension, intention, potentiel),
+                    
+                    // Personnes potentielles en jeu
+                    personnesPotentielles: this._identifierPersonnesPotentielles(texte, comprehension, intention),
+                    
+                    // Situations potentielles
+                    situationsPotentielles: this._identifierSituationsPotentielles(texte, comprehension, intention, potentiel),
+                    
+                    // Événements potentiels
+                    evenementsPotentiels: this._identifierEvenementsPotentiels(texte, comprehension, intention),
+                    
+                    // Niveau de correspondance
+                    niveauCorrespondance: this._calculerNiveauCorrespondance(intention, potentiel),
+                    
+                    // Besoin d'exploration supplémentaire
+                    besoinExploration: this._evaluerBesoinExploration(comprehension, intention),
+                    
+                    // "Magic" de NEXUS - ce que l'utilisateur n'avait pas vu
+                    magieNexus: this._identifierMagieNexus(texte, comprehension, intention, potentiel)
+                };
                 
                 const particle = new THREE.Mesh(geometry, material);
+                this.possibilites = possibilites;
+                return possibilites;
+            }
+            
+            // === COUCHE 7: ACTION RECOMMANDÉE ===
+            recommanderAction(possibilites, intention, contexte) {
+                const action = {
+                    // Type d'action suggérée
+                    typeAction: this._determinerTypeAction(possibilites, intention),
+                    
+                    // Intensité de l'action
+                    intensite: this._calculerIntensiteAction(possibilites, intention),
+                    
+                    // Première étape immédiate
+                    premiereEtape: this._proposerPremiereEtape(possibilites),
+                    
+                    // Délai suggéré
+                    delaiSuggere: this._suggérerDelai(contexte),
+                    
+                    // Niveau de confiance du système
+                    confianceSyst: this.confiance,
+                    
+                    // Option "continuer à parler"
+                    continuerDialogue: this._evaluerContinuerDialogue(comprehension, intention),
+                    
+                    // Message de système
+                    messageSyst: this._genererMessageSyst(possibilites, intention, contexte)
+                };
                 
                 const angle = Math.random() * Math.PI * 2;
                 const velocity = 2 + Math.random() * 3;
+                this.action = action;
+                return action;
+            }
+            
+            // === MÉTHODES AUXILIAIRES ===
+            
+            _detecterIntentionsPrincipales(lower) {
+                const intentions = {
+                    connexionSociale: /(rencontrer|personne|amis|social|sortir)/i.test(lower),
+                    apprentissage: /(apprendre|cours|compétence|nouvelle compétence)/i.test(lower),
+                    aide_ou_offre: /(aide|besoin|peux aider|peux offrir|donner|ressource)/i.test(lower),
+                    transition_vie: /(déménagement|retraite|enfants partis|déménagement)/i.test(lower),
+                    activation: /(quoi faire|samedi|dimanche|week-end|maintenant|bientôt)/i.test(lower),
+                    reflexion: /(je ne sais pas|bof|envie|curiosité|peut-être)/i.test(lower)
+                };
                 
                 particle.userData = {
                     life: 80,
                     vx: Math.cos(angle) * velocity * 0.1,
                     vy: (Math.random() - 0.5) * velocity * 0.1,
                     vz: Math.sin(angle) * velocity * 0.1
+                const actifs = Object.entries(intentions).filter(([_, actif]) => actif);
+                return actifs.length > 0 ? actifs.map(([label]) => label) : ['reflexion'];
+            }
+            
+            _analyserEtatEmotionnel(lower) {
+                const emotions = {
+                    solitude: /solitude|seul|seule|isolement/i.test(lower),
+                    fatigue: /fatigue|épuisé|tired/i.test(lower),
+                    excitation: /excité|hâte|impatience/i.test(lower),
+                    anxiété: /anxieux|stress|inquiétude/i.test(lower),
+                    calme: /calme|paix|paix intérieure/i.test(lower),
+                    mélancolie: /tristesse|melancholy|un peu baissé/i.test(lower)
                 };
                 
                 particle.position.set(
@@ -1214,13 +2972,38 @@
                     (Math.random() - 0.5) * 1.2,
                     (Math.random() - 0.5) * 1.2
                 );
+                const actifs = [];
+                for (const [etat, test] of Object.entries(emotions)) {
+                    if (test) actifs.push(etat);
+                }
+                return actifs.length > 0 ? actifs : ['neutre'];
+            }
+            
+            _extraireContraintes(lower) {
+                const contraintes = [];
+                if (/(pas le temps|pas le temps de|hâte|pressé)/i.test(lower)) contraintes.push('limited_time');
+                if (/(argent|coût|abordable|gratuit)/i.test(lower)) contraintes.push('budget');
+                if (/(mobilité|déplacement|se déplacer)/i.test(lower)) contraintes.push('mobility');
+                if (/(enfants|famille|responsabilités)/i.test(lower)) contraintes.push('family_responsibilities');
+                if (/(santé|maladie|problème de santé)/i.test(lower)) contraintes.push('health');
+                return contraintes;
+            }
+            
+            _hypotheserContexte(lower) {
+                const hypotheses = [];
                 
                 scene.add(particle);
+                if (/(viens d\'arriver|nouveau ici|déménage)/i.test(lower)) hypotheses.push('new_in_city');
+                if (/(retraité|fin de carrière|maintenant que)/i.test(lower)) hypotheses.push('post_career');
+                if (/(enfants ont grandi|maison vide|plus d\'enfants)/i.test(lower)) hypotheses.push('empty_nest');
+                if (/(travaille|boulot|projet|tâche)/i.test(lower)) hypotheses.push('working');
+                if (/(week-end|samedi|dimanche|maintenant|bientôt)/i.test(lower)) hypotheses.push('has_specific_timeframe');
                 
                 // Remove after animation
                 setTimeout(() => {
                     if (particle.parent) scene.remove(particle);
                 }, 2200);
+                return hypotheses.length > 0 ? hypotheses : ['general'];
             }
         }
         
@@ -1252,28 +3035,279 @@
             setTimeout(() => {
                 toast.style.opacity = '0';
                 toast.style.bottom = '200px';
+            _calculerAmbiguite(lower) {
+                let score = 0;
+                if (/(peut-être|bien|enfin|un peu)/i.test(lower)) score += 20;
+                if (/(je ne sais pas|idk|hum)/i.test(lower)) score += 35;
+                if (Object.keys(this._detecterIntentionsPrincipales(lower)).length === 0) score += 30;
+                if (/(et|aussi|de plus)/i.test(lower)) score += 15;
+                return Math.min(100, score);
+            }
+            
+            _extraireMotsClesAvecPoids(lower) {
+                const poids = {
+                    'vouloir': 8, 'aimerais': 7, 'cherche': 6, 'besoin': 5,
+                    'aimer': 7, 'peux': 5, 'apprendre': 6, 'rêve': 6,
+                    'aide': 5, 'offre': 5, 'donne': 5, 'peux aider': 7,
+                    'retraité': 8, 'déménagement': 8, 'nouveau': 6,
+                    'samedi': 4, 'dimanche': 4, 'week-end': 4,
+                    'travaille': 5, 'tâche': 5, 'projet': 5
+                };
                 
                 setTimeout(() => {
                     document.body.removeChild(toast);
                 }, 1200);
             }, 2800);
+                const trouves = [];
+                for (const [mot, poidsMot] of Object.entries(poids)) {
+                    if (lower.includes(mot)) {
+                        trouves.push({ mot, poids: poidsMot });
+                    }
+                }
+                return trouves.sort((a, b) => b.poids - a.poids).slice(0, 8);
+            }
+            
+            _analyserDisponibiliteTemporelle(lower) {
+                if (/(maintenant|tout de suite|immédiat)/i.test(lower)) return 'immédiat';
+                if (/(cet après-midi|ce soir|ce weekend|ce week-end)/i.test(lower)) return 'courte';
+                if (/(bientôt|dans quelques|prochain)/i.test(lower)) return 'moyenne';
+                if (/(plus tard|un jour|someday|dans le futur)/i.test(lower)) return 'longue';
+                return 'inconnu';
+            }
+            
+            _analyserEtatRelationnel(lower) {
+                if (/(seul|seule|isolement|pas de monde|personne)/i.test(lower)) return 'isolé';
+                if (/(avec|partenaire|conjoint|famille)/i.test(lower)) return 'en_relation';
+                if (/(amis|amis proches|groupe)/i.test(lower)) return 'has_friends';
+                return 'neutre';
+            }
+            
+            _determinerUrgence(lower) {
+                if (/(urgence|aussitôt|tout de suite|maintenant)/i.test(lower)) return 'élevée';
+                if /(cet après-midi|dans quelques jours|prochain)/i.test(lower)) return 'moyenne';
+                return 'faible';
+            }
+            
+            _genererCleDeLecture(lower) {
+                if (/(viens d\'arriver|nouveau ici)/i.test(lower)) return 'new_arrival';
+                if (/(retraité|fin de carrière)/i.test(lower)) return 'post_career';
+                if (/(enfants ont grandi|maison vide)/i.test(lower)) return 'empty_nest';
+                if (/(travaille|projet)/i.test(lower)) return 'working';
+                return 'general';
+            }
+            
+            _extraireDesirPrincipal(texte, comprehension) {
+                const désirs = {
+                    connexion: /(rencontrer|personne|social|sortir|amitis)/i.test(texte),
+                    apprentissage: /(apprendre|cours|compétence|nouvelle)/i.test(texte),
+                    liberté: /(quoi faire|samedi|dimanche|libre|pas le temps)/i.test(texte),
+                    résolution_problème: /(problème|difficulté|empêche|empêche pas)/i.test(texte),
+                    exploration: /(découvrir|essayer|nouveau|idees)/i.test(texte)
+                };
+                
+                const actifs = Object.entries(désirs).filter(([_, actif]) => actif);
+                return actif.length > 0 ? actifs.map(([label]) => label)[0] : 'exploration';
+            }
+            
+            _extraireBesoinReel(texte, comprehension, contexte) {
+                const besoins = [];
+                
+                if (/ (rencontr|social|amiti|personne)/i.test(texte) || contexte.contexteRelationnel === 'isolé') {
+                    besoins.push('connexion_sociale');
+                }
+                
+                if / (apprendre|cours|compétence|nouvelle)/i.test(texte)) {
+                    besoins.push('apprentissage');
+                }
+                
+                if / (week-end|samedi|dimanche|quoi faire)/i.test(texte) {
+                    besoins.push('activité');
+                }
+                
+                if / (besoin d'aide|aide|support)/i.test(texte) || comprehension.contraintes.includes('health')) {
+                    besoins.push('sécurité');
+                }
+                
+                return besoins.length > 0 ? besoins : ['exploration_générale'];
+            }
+            
+            _extraireProblemeConcret(texte, comprehension) {
+                const problèmes = [];
+                
+                if / (sabote|fuit|casse|ne fonctionne)/i.test(texte)) problèmes.push('problème_concret_immédiat');
+                if / (enfants ont grandi|maison vide|retraite)/i.test(texte)) problèmes.push('transition_vie');
+                if / (trop plein|encombré|vide)/i.test(texte)) problèmes.push('changement_espacial');
+                if / (fatigué|épuisé|surmené)/i.test(texte)) problèmes.push('fatigue_émotionnelle');
+                
+                return problèmes.length > 0 ? problèmes : ['recherche_générale'];
+            }
+            
+            _determinerHorizonTemporel(texte, contexte) {
+                const maintenant = /(maintenant|tout de suite|immédiat|cet après-midi)/i.test(texte);
+                const bientôt = /(bientôt|dans quelques|prochain)/i.test(texte);
+                const plus_tard = /(plus tard|un jour|someday|dans le futur|en retraite)/i.test(texte);
+                const récurrent = /(chaque semaine|chaque mois|récurrent|régulièrement)/i.test(texte);
+                
+                if (récurrent) return 'récurrent';
+                if (plus_tard) return 'futur';
+                if (bientôt) return 'court';
+                if (maintenant) return 'immédiat';
+                
+                if (contexte.retraite) return 'flexible';
+                if (contexte.nouveauLieu) return 'découverte';
+                return 'inconnu';
+            }
+            
+            _calculerEngagement(texte, comprehension) {
+                let score = 0;
+                if (texte.length > 50) score += 20;
+                if (comprehension.motsCles.length > 3) score += 20;
+                if (comprehension.intentionsPrincipales.length > 1) score += 20;
+                if (/ (surtout|principalement|avant tout)/i.test(texte)) score += 20;
+                if (texte.includes('?') && !texte.includes('!')) score += 10;
+                return Math.min(100, score);
+            }
+            
+            _extraireDirectionPotentielle(texte, comprehension) {
+                const directions = [];
+                if / (aller|partir|départ|déplacement)/i.test(texte)) directions.push('mobilité');
+                if / (apprendre|cours|compétence)/i.test(texte)) directions.push('compétence');
+                if / (rencontr|social|groupe)/i.test(texte)) directions.push('relation');
+                if / (faire|activité|sortir|week-end)/i.test(texte)) directions.push('activité');
+                
+                return directions.length > 0 ? directions : ['exploration_générale'];
+            }
+            
+            _calculerCertitude(comprehension, contexte) {
+                let base = 50;
+                if (comprehension.motsCles.length > 5) base += 20;
+                if (contexte.clereDeLecture !== 'general') base += 15;
+                if (comprehension.niveauAmbiguite < 30) base += 20;
+                if (comprehension.intentionsPrincipales.length > 1) base += 10;
+                return Math.min(100, Math.max(0, base));
+            }
+            
+            _identifierMagieNexus(texte, comprehension, intention, potentiel) {
+                const magie = [];
+                
+                if (/ (mais| pourtant| cependant)/i.test(texte) && comprehension.contraintes.length > 0 && intention.besoins.length > 0) {
+                    magie.push('contraste_contrainte_solution');
+                }
+                
+                if (potentiel.capacitesPersonnelles.length > 0 && intention.desirPrincipal !== 'capacités') {
+                    magie.push('capacités_dormantes_non_solicitées');
+                }
+                
+                if (contexte.nouveauLieu && !contexte.contexteRelationnel) {
+                    magie.push('besoin_caché_nouvel_environnement');
+                }
+                
+                if (intention.certitudeSyst < 50 && / (envie|aimerais|hâte)/i.test(texte)) {
+                    magie.push('intérêt_flou_direction_claire');
+                }
+                
+                return magie;
+            }
+            
+            _evaluerBesoinExploration(comprehension, intention) {
+                if (comprehension.niveauAmbiguite > 60) return 'élevé';
+                if (intention.certitudeSyst < 40) return 'élevé';
+                if (intention.desirPrincipal === 'exploration') return 'élevé';
+                if (comprehension.motsCles.length < 3) return 'moyen';
+                return 'faible';
+            }
+            
+            _determinerTypeAction(possibilites, intention) {
+                if (possibilites.typesConnexions.includes('sociale')) return 'connexion';
+                if (possibilites.typesConnexions.includes('apprentissage')) return 'apprentissage';
+                if (possibilites.typesConnexions.includes('activité')) return 'activité';
+                if (possibilites.typesConnexions.includes('ressource')) return 'ressource';
+                if (intention.desirPrincipal === 'exploration') return 'exploration';
+                return 'information';
+            }
+            
+            _suggérerDelai(contexte) {
+                if (contexte.urgence === 'élevée') return 'immédiat';
+                if (contexte.disponibiliteTemporelle === 'immédiat') return 'cette_fois';
+                if (contexte.disponibiliteTemporelle === 'courte') return 'cette_semaine';
+                if (contexte.disponibiliteTemporelle === 'moyenne') return 'dans_le_mois';
+                return 'à_long_terme';
+            }
+            
+            _evaluerContinuerDialogue(comprehension, intention) {
+                if (comprehension.niveauAmbiguite > 70) return true;
+                if (intention.certitudeSyst < 30) return true;
+                if (intention.desirPrincipal === 'exploration') return true;
+                if (comprehension.hypothèsesContexte.includes('new_arrival')) return true;
+                return false;
+            }
+            
+            _genererMessageSyst(possibilites, intention, contexte) {
+                if (possibilites.magieNexus.length > 0) {
+                    const magies = possibilites.magieNexus;
+                    if (magies.includes('capacités_dormantes_non_solicitées')) {
+                        return "J'ai détecté une capacité que vous n'aviez pas encore exprimée. Voulez-vous en parler ?";
+                    }
+                    if (magies.includes('besoin_caché_nouvel_environnement')) {
+                        return "Votre nouvelle situation semble cacher des besoins que vous n'aviez pas encore remarqués. Curieux d'en discuter ?";
+                    }
+                    if (magies.includes('intérêt_flou_direction_claire')) {
+                        return "Votre intention est floue mais l'intérêt est là. Continuons à explorer ensemble.";
+                    }
+                }
+                
+                if (intention.certitudeSyst < 40) {
+                    return "J'ai compris le contexte mais pas encore la direction. Continuons le dialogue pour affiner.";
+                }
+                
+                if (possibilites.besoinExploration === 'élevé') {
+                    return "C'est une intention floue. Parlez-moi un peu plus de ce qui vous amène.";
+                }
+                
+                return "Intention comprise. Que aimeriez-vous faire maintenant ?";
+            }
         }
         
         function quickIntent(el) {
             const text = el.textContent;
             const input = document.getElementById('intent-input');
             input.value = text;
+        // Instance globale
+        window.NEXUSIntentEngine = new NEXUSIntentEngine();
+        
+        // ============ POIN D'ENTRÉE PRINCIPAL ============
+        function analyzerIntentionalité(texte) {
+            const engine = window.NEXUSIntentEngine;
             
             // Pulse the element
             el.style.transform = 'scale(0.8)';
             setTimeout(() => {
                 el.style.transform = 'scale(1)';
             }, 120);
+            engine.analyserExpression(texte);
+            engine.comprehendre(texte);
+            engine.analyserContexte(texte);
+            engine.clarifierIntention(texte, engine.comprehension, engine.contexte);
+            engine.evaluerPotentiel(texte, engine.comprehension, engine.intention, engine.contexte);
+            engine.determinerPossibilites(texte, engine.comprehension, engine.intention, engine.potentiel, engine.contexte);
             
             // Auto submit after a short delay
             setTimeout(() => {
                 submitIntent();
             }, 420);
+            const action = engine.recommanderAction(possibilites, intention, contexte);
+            
+            mettreÀJourInterfaceAnalyse(texte, engine, action);
+            
+            return {
+                expression: engine.expression,
+                comprehension: engine.comprehension,
+                contexte: engine.contexte,
+                intention: engine.intention,
+                potentiel: engine.potentiel,
+                possibilites: engine.possibilites,
+                action: action
+            };
         }
         
         function toggleMode(el) {
@@ -1282,6 +3316,35 @@
                 siblings[i].classList.remove('mode-active');
             }
             el.classList.add('mode-active');
+        // ============ MISE À JOUR DE L'INTERFACE ============
+        function mettreÀJourInterfaceAnalyse(texte, engine, action) {
+            const panel = document.getElementById('intent-analysis-panel');
+            const textEl = document.getElementById('intent-analysis-text');
+            
+            if (!panel || !textEl) return;
+            
+            const certitude = engine.intention?.certitudeSyst || 50;
+            const niveau = certitude > 80 ? 'élevé' : certitude > 50 ? 'moyen' : 'faible';
+            
+            panel.style.opacity = '1';
+            
+            textEl.innerHTML = `
+                <div style="font-size: 12px; color: #8877aa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                    Analyse NEXUS V3
+                </div>
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">
+                    "${texte.substring(0, 60)}${texte.length > 60 ? '...' : ''}"
+                </div>
+                <div style="margin-bottom: 6px;">
+                    <span style="color: #5a9fff; font-size: 12px;">CONFORT: ${engine.intention?.certitudeSyst}%</span>
+                </div>
+                <div style="margin-bottom: 6px;">
+                    <span style="color: #8877aa;">
+                        Détecté: ${engine.comprehension?.intentionsPrincipales?.join(', ') || 'communication'}
+                        | Horizon: ${engine.intention?.horizonTemporel || 'inconnu'}
+                    </span>
+                </div>
+            `;
         }
         
         function playIntroVideo() {
@@ -1290,9 +3353,13 @@
                 "Synchronisation des intentions...",
                 "Activation du cristal central..."
             ];
+        // ============ MISE À JOUR DU CUBE V3 ============
+        function mettreÀJourCubeV3(analyse) {
+            if (!cube) return;
             
             let i = 0;
             const originalPlaceholder = document.getElementById('intent-input').placeholder;
+            const scores = {};
             
             const interval = setInterval(() => {
                 if (i < messages.length) {
@@ -1306,17 +3373,102 @@
                     if (cube) {
                         cube.material.emissiveIntensity = 5;
                         setTimeout(() => cube.material.emissiveIntensity = 0.6, 800);
+            if (analyse.intention) {
+                for (const [dim, score] of Object.entries(analyse.intention)) {
+                    if (dim !== 'certitudeSyst' && dim !== 'directionPotentielle' && dim !== 'engagement' && dim !== 'certitudeSyst') {
+                        scores[dim] = score;
                     }
                 }
             }, 700);
+            }
+            if (analyse.potentiel) {
+                for (const [dim, score] of Object.entries(analyse.potentiel)) {
+                    if (dim !== 'adéquation') scores[dim] = (scores[dim] || 0) + score;
+                }
+            }
+            if (analyse.possibilites) {
+                for (const [dim, score] of Object.entries(analyse.possibilites)) {
+                    if (dim !== 'typesConnexions' && dim !== 'personnesPotentielles' && dim !== 'situationsPotentielles' && dim !== 'evenementsPotentiels' && dim !== 'niveauCorrespondance' && dim !== 'besoinExploration' && dim !== 'magieNexus') scores[dim] = (scores[dim] || 0) + score;
+                }
+            }
+            
+            Object.keys(scores).forEach(dim => {
+                scores[dim] = Math.min(100, Math.max(0, scores[dim]));
+            });
+            
+            const facePlanes = cube.children.filter(c => c.isMesh && c.material);
+            facePlanes.forEach((plane, i) => {
+                const faceId = i + 1;
+                const score = scores[faceId] || 0;
+                
+                if (plane.userData) {
+                    plane.userData.targetScore = score;
+                    plane.userData.targetOpacity = 0.05 + (score / 100) * 0.2;
+                    plane.userData.targetScale = 1.0 + (score / 100) * 0.3;
+                }
+                
+                plane.material.opacity = 0.05 + (score / 100) * 0.2;
+                
+                if (score > 30) {
+                    const info = intentEngine.getDimensionInfo(faceId);
+                    plane.material.color = new THREE.Color(info.color);
+                    plane.material.transparent = true;
+                }
+            });
+            
+            const startTime = performance.now();
+            const duration = 1500;
             
             createBurstParticles();
             createBurstParticles();
+            function animateCube() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easing = 1 - Math.pow(1 - progress, 3);
+                
+                const facePlanes = cube.children.filter(c => c.isMesh && c.material);
+                
+                facePlanes.forEach((plane, i) => {
+                    if (plane.userData) {
+                        plane.userData.currentScore = plane.userData.currentScore * (1 - easing) + plane.userData.targetScore * easing;
+                        plane.userData.currentOpacity = plane.userData.currentOpacity * (1 - easing) + plane.userData.targetOpacity * easing;
+                        plane.userData.currentScale = plane.userData.currentScale * (1 - easing) + plane.userData.targetScale * easing;
+                        
+                        plane.scale.set(
+                            plane.userData.currentScale,
+                            plane.userData.currentScale,
+                            plane.userData.currentScale
+                        );
+                        plane.material.opacity = plane.userData.currentOpacity;
+                    }
+                });
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateCube);
+                }
+            }
+            
+            requestAnimationFrame(animateCube);
         }
         
         function viewAllIntents() {
+        // ============ MISE EN ŒUVRE SUR INTENT INPUT ============
+        function submitIntent() {
             const input = document.getElementById('intent-input');
             input.value = "Afficher toutes les intentions actives...";
+            const val = input.value.trim();
+            
+            if (!val) return;
+            
+            const analyse = analyzerIntentionalité(val);
+            
+            mettreÀJourInterfaceAnalyse(val, window.NEXUSIntentEngine, analyse.action);
+            mettreÀJourCubeV3(analyse);
+            createIntentTransitionParticlesV3(val);
+            showFeedbackSystème(analyse);
+            updateRecentIntents(val);
+            input.value = '';
+            
             setTimeout(() => {
                 submitIntent();
             }, 300);
@@ -1324,22 +3476,105 @@
         
         function viewAllConnections() {
             alert("🌐 Ouverture de l'explorateur de connexions (simulation)...\n\nDes milliers d'intentions se relient en ce moment même.");
+                if (cube.userData.material) {
+                    cube.userData.material.uniforms.uTime.value = animationTime;
+                }
+            }, 2500);
         }
         
         function showLiveMap() {
             const map = document.querySelector('.live-map');
             map.style.transition = 'transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
             map.style.transform = 'scale(1.12) translateY(-20px)';
+        // ============ PARTICULES V3 ============
+        function createIntentTransitionParticlesV3(text) {
+            if (!scene) return;
             
             setTimeout(() => {
                 map.style.transform = 'scale(1) translateY(0)';
             }, 1200);
+            const lowerText = text.toLowerCase();
+            const particleCount = Math.min(Math.max(15, text.length / 4), 30);
             
             // Add some dots
             for (let i = 0; i < 8; i++) {
                 setTimeout(() => {
                     createBurstParticles();
                 }, i * 70);
+            const particleTypes = [];
+            
+            if (/ (viens d\'arriver|nouveau ici|déménage)/i.test(lowerText)) particleTypes.push('arrival');
+            if (/ (retraité|fin de carrière)/i.test(lowerText)) particleTypes.push('retirement');
+            if (/ (week-end|samedi|dimanche)/i.test(lowerText)) particleTypes.push('weekend');
+            if (/ (apprendre|cours|compétence)/i.test(lowerText)) particleTypes.push('learning');
+            if (/ (aide|besoin|rencontrer)/i.test(lowerText)) particleTypes.push('help');
+            
+            if (particleTypes.length === 0) particleTypes.push('general');
+            
+            const couleursParType = {
+                arrival: '#00f7ff',
+                retirement: '#7b5eff',
+                weekend: '#ffd700',
+                learning: '#00ff9f',
+                help: '#ff00cc',
+                general: '#aaffff'
+            };
+            
+            for (let i = 0; i < particleCount; i++) {
+                const geometry = new THREE.SphereGeometry(0.06, 6, 6);
+                const type = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+                const color = new THREE.Color(couleursParType[type] || '#00f7ff');
+                
+                const material = new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 1,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                const angle = (Math.random() * Math.PI * 2);
+                const distance = 1.2 + Math.random() * 1;
+                mesh.position.set(
+                    Math.cos(angle) * distance,
+                    (Math.random() - 0.5) * 1.5,
+                    Math.sin(angle) * distance
+                );
+                
+                const velocityBase = type === 'arrival' ? 0.8 : type === 'retirement' ? 0.3 : 0.5;
+                const velocity = velocityBase + Math.random() * 0.3;
+                
+                mesh.userData = {
+                    life: 1200,
+                    vx: Math.cos(angle) * velocity * 0.15,
+                    vy: (Math.random() - 0.5) * velocity * 0.15,
+                    vz: Math.sin(angle) * velocity * 0.15,
+                    type: type,
+                    text: text.substring(0, 20)
+                };
+                
+                scene.add(mesh);
+                
+                const startTime = performance.now();
+                
+                function animateTransition() {
+                    const elapsed = performance.now() - startTime;
+                    if (elapsed > 1200) {
+                        scene.remove(mesh);
+                        return;
+                    }
+                    
+                    const progress = elapsed / 1200;
+                    mesh.position.x *= 1 - progress * 0.5;
+                    mesh.position.y *= 1 - progress * 0.5;
+                    mesh.position.z *= 1 - progress * 0.5;
+                    material.opacity = 1 - progress;
+                    
+                    requestAnimationFrame(animateTransition);
+                }
+                
+                animateTransition();
             }
         }
         
@@ -1349,6 +3584,40 @@
                 e.preventDefault();
                 const input = document.getElementById('intent-input');
                 input.focus();
+        // ============ FEEDBACK SYSTÈME ============
+        function showFeedbackSystème(analyse) {
+            const feedback = document.createElement('div');
+            feedback.style.cssText = `
+                position: fixed;
+                bottom: 160px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(20, 10, 50, 0.9);
+                color: #e0d8f0;
+                padding: 14px 28px;
+                border-radius: 30px;
+                font-size: 14px;
+                z-index: 999;
+                box-shadow: 0 0 50px -10px #00f7ff;
+                white-space: nowrap;
+                animation: fade-in-bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            `;
+            
+            const certitude = analyse.intention?.certitudeSyst || 50;
+            const horizon = analyse.intention?.horizonTemporel || 'inconnu';
+            const besoinExploration = analyse.possibilites?.besoinExploration;
+            const magie = analysemagieNexus?.length > 0 ? analysemagieNexus : [];
+            
+            let messagePrincipal = 'Intention analysée';
+            
+            if (certitude > 80) {
+                messagePrincipal = 'Intention bien comprise';
+            } else if (certitude > 50) {
+                messagePrincipal = 'Intention partiellement comprise';
+            } else if (certitude > 20) {
+                messagePrincipal = 'Contexte détecté, direction en exploration';
+            } else {
+                messagePrincipal = 'Intention floue - dialogue continu';
             }
         }
         
@@ -1364,18 +3633,66 @@
                 
                 if (count > 17000) clearInterval(counter);
             }, 2100);
+            let messageSecondaire = '';
+            if (horizon === 'immédiat') messageSecondaire = 'Action suggérée pour aujourd\'hui';
+            if (horizon === 'court') messageSecondaire = 'Actions suggérées pour cette semaine';
+            if (horizon === 'futur') messageSecondaire = 'Potentiel à explorer plus tard';
+            if (horizon === 'récurrent') messageSecondaire = 'Pattern récurrent à suivre';
+            if (besoinExploration === 'élevé') messageSecondaire = 'Besoin d\'explorer davantage vos intentions';
+            if (magie.length > 0) {
+                messageSecondaire = `💫 ${magie[0]}`;
+            }
             
             // Make the input glow on focus
             const intentInput = document.getElementById('intent-input');
+            feedback.textContent = `${messagePrincipal}. ${messageSecondaire}`;
+            
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.style.opacity = '0';
+                setTimeout(() => {
+                    if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
+                }, 300);
+            }, 5000);
+        }
+        
+        // ============ TESTS ============
+        function testerPhrases(phrases) {
+            console.log('=== TESTS NEXUS V3 ===');
+            phrases.forEach((phrase, i) => {
+                console.log(`\n${i + 1}. "${phrase}"`);
+                const result = analyzerIntentionalité(phrase);
+                console.log(`   Horizon: ${result.intention?.horizonTemporel}`);
+                console.log(`   Certitude: ${result.intention?.certitudeSyst}%`);
+                console.log(`   Désir: ${result.intention?.desirPrincipal}`);
+                console.log(`   Correspondances: ${result.possibilites?.typesConnexions?.join(', ') || 'aucune'}`);
+                console.log(`   Magie: ${ analysemagieNexus?.length > 0 ? analysemagieNexus.join(', ') : 'aucune' }`);
+            });
+        }
+        
+        // Au focus de l'input
+        const intentInput = document.getElementById('intent-input');
+        if (intentInput) {
             intentInput.addEventListener('focus', () => {
                 intentInput.parentElement.style.boxShadow = '0 0 70px -10px #00ffff, 0 0 30px 10px rgba(180, 80, 255, 0.6)';
                 if (cube) cube.material.emissiveIntensity = 2.2;
+                isInputFocused = true;
+                intentInput.parentElement.style.boxShadow = '0 0 70px -10px var(--accent-primary), 0 0 30px 10px rgba(180, 80, 255, 0.6)';
             });
             
             intentInput.addEventListener('blur', () => {
                 intentInput.parentElement.style.boxShadow = '0 0 60px -10px rgb(120 100 255), 0 25px 50px -12px rgb(0 0 0)';
                 if (cube) cube.material.emissiveIntensity = 0.6;
+                isInputFocused = false;
+                intentInput.parentElement.style.boxShadow = '0 0 60px -10px rgba(120, 100, 255, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.5)';
             });
+        }
+    </script>
+        
+        // ============ METTRE À JOUR LES POURCENTAGES SUR LE CUBE ============
+        function updateCubePercentages(intentScores) {
+            if (!cube) return;
             
             // Keyboard
             document.addEventListener('keydown', handleKeys);
@@ -1401,8 +3718,41 @@
                         toast.style.transform = 'translateY(-30px)';
                         setTimeout(() => document.body.removeChild(toast), 2500);
                     }, 2100);
+            // Mise à jour des visages avec leurs pourcentages respectifs
+            const facePercentageObjs = cube.children.filter(c => 
+                c.isMesh && c.material && c.material.opacity > 0.01
+            );
+            
+            facePercentageObjs.forEach((plane, i) => {
+                const faceId = i + 1;
+                const percent = Math.round(intentScores[faceId] || 0);
+                
+                // Animer la croissance/rétrécissement du visage
+                // Le visage grandit proportionnellement au pourcentage
+                const baseScale = 1.0;
+                const targetScale = 1.0 + (percent / 100) * 0.5; // Jusqu'à 50% de plus grand
+                
+                // Animation fluide vers l'échelle cible
+                if (plane.userData) {
+                    plane.userData.targetScale = targetScale;
+                    plane.userData.targetOpacity = 0.05 + (percent / 100) * 0.2;
+                }
+                
+                // Mise à jour visuelle immédiate
+                plane.material.opacity = 0.05 + (percent / 100) * 0.2;
+                
+                // Changer la couleur si c'est la dimension dominante
+                if (percent > 50) {
+                    plane.material.color = new THREE.Color(intentScores.getDimensionInfo(faceId).color);
+                    plane.material.transparent = true;
                 }
             }, 13000);
+            });
+        }
+        
+        // ============ ANALYSER L'INTENTION ET RÉCONFIGURER LE CUBE ============
+        function analyzeAndReconfigureIntent(text) {
+            if (!cube) return;
             
             // Welcome message
             setTimeout(() => {
@@ -1432,8 +3782,24 @@
                     setTimeout(() => document.body.removeChild(welcome), 2200);
                 }, 5200);
             }, 2100);
+            // 1. Analyser le texte via le moteur d'intention
+            const scores = intentEngine.analyze(text);
             
             console.log('%cNEXUS 3D experience initialized ✨', 'color:#77ddff; font-family:monospace');
+            // 2. Stocker les scores pour résonance future
+            cube.userData.intentScores = scores;
+            
+            // 3. Mettre à jour les pourcentages sur les faces
+            updateCubePercentages(scores);
+            
+            // 4. Animer la réconfiguration du cube
+            animateCubeReconfiguration(scores);
+            
+            // 5. Afficher le feedback textuel
+            showIntentFeedback(text, scores);
+            
+            // 6. Créer des particules de transition
+            createIntentTransitionParticles(text);
         }
         
         // Boot the experience
@@ -1441,3 +3807,330 @@
     </script>
 </body>
 </html>
+        // ============ ANIMER LA RÉCONFIGURATION DU CUBE ============
+        function animateCubeReconfiguration(scores) {
+            if (!cube) return;
+            
+            const startTime = performance.now();
+            const duration = 2000; // 2 secondes pour la réconfiguration
+            
+            function animate() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Interpolation cubique douce
+                const easing = 1 - Math.pow(1 - progress, 3);
+                
+                // Pour chaque face, ajuster échelle et luminosité
+                const facePlanes = cube.children.filter(c => c.isMesh && c.material);
+                
+                facePlanes.forEach((plane, i) => {
+                    const faceId = i + 1;
+                    const score = scores[faceId] || 0;
+                    const targetScale = 1.0 + (score / 100) * 0.5;
+                    const targetOpacity = 0.05 + (score / 100) * 0.2;
+                    
+                    // Interpolation fluide
+                    if (plane.userData) {
+                        plane.userData.currentScale = 
+                            plane.userData.currentScale * (1 - easing) + targetScale * easing;
+                        plane.userData.currentOpacity = 
+                            plane.userData.currentOpacity * (1 - easing) + targetOpacity * easing;
+                        
+                        plane.scale.set(
+                            plane.userData.currentScale,
+                            plane.userData.currentScale,
+                            plane.userData.currentScale
+                        );
+                        plane.material.opacity = plane.userData.currentOpacity;
+                    }
+                });
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        // ============ MONTRER LE FEEDBACK TEXTUEL DE L'INTENTION ============
+        function showIntentFeedback(text, scores) {
+            // Créer un panneau de feedback
+            const feedbac// V3.1 Possibility Engine
+// Point d&rquo;entrée principal
+function analyzePossibility(text) {
+    const engine = window.NEXUS && window.NEXUS.PossibilityEngine;
+    if (!engine) {
+        window.NEXUS = window.NEXUS || {};
+        window.NEXUS.PossibilityEngine = new (function() {
+            class Engine {
+                constructor() {
+                    this.expression = {};
+                    this.comprehension = {};
+                    this.situation = {};
+                    this.resources = {};
+                    this.needs = {};
+                    this.capacities = {};
+                    this.constraints = {};
+                    this.temporality = {};
+                    this.uncertainty = {};
+                    this.possibilities = {};
+                    this.confidence = 0;
+                    this.memory = [];
+                }
+                this.analyze = function(text) {
+                    const engine = this;
+                    engine._analyzeExpression(text);
+                    engine._comprehend();
+                    engine._buildSituation();
+                    engine._identifyResources();
+                    engine._identifyNeeds();
+                    engine._identifyCapacities();
+                    engine._identifyConstraints();
+                    engine._determineTemporality();
+                    engine._calculateUncertainty();
+                    engine._generatePossibilities();
+                    return engine;
+                };
+                engine._analyzeExpression = function(text) {
+                    this.expression = {
+                        raw: text,
+                        normalized: text.toLowerCase().trim(),
+                        length: text.length,
+                        hasQuestionMark: text.endsWith("?"),
+                        hasExclamation: text.endsWith("!"),
+                        containsNegation: /(ne|pas|plus)/i.test(text),
+                        keywords: this._extractKeywords(text)
+                    };
+                };
+                this._extractKeywords = function(text) {
+                    return {
+                        newPlace: /(viens d&rquo;arriver|nouveau ici|déménage)/i.test(text),
+                        retirement: /(retraité|fin de carrière|à la retraite)/i.test(text),
+                        emptyNest: /(enfants ont quitté|enfants partis|maison vide|chambre d&rquo;enfant)/i.test(text),
+                        roomAvailable: /(chambre|pièce|logement)/i.test(text),
+                        timeAvailable: /(temps libre|disponible|maintenant que|depuis)/i.test(text),
+                        knowledge: /(connaisse|bien la région|je connais)/i.test(text),
+                        loneliness: /(seul|seule|isolement|personne)/i.test(text),
+                        activity: /(quoi faire|sortir|week-end|samedi|dimanche|activité)/i.test(text),
+                        immediate: /(maintenant|tout de suite|immédiat|cet après-midi)/i.test(text),
+                        shortTerm: /(cet après-midi|ce soir|ce week-end|prochain)/i.test(text),
+                        mediumTerm: /(bientôt|dans quelques|prochain mois)/i.test(text),
+                        longTerm: /(plus tard|un jour|someday|en retraite|futur)/i.test(text),
+                        unclear: /(je ne sais pas|bien|enfin|peut-être|idk)/i.test(text),
+                        unsure: /(hum|un peu|maybe|sort of)/i.test(text)
+                    };
+                };
+                engine._comprehend = function() {
+                    const kw = this.expression.keywords;
+                    engine.comprehension = {
+                        situationType: engine._situationType(kw),
+                        isolation: kw.loneliness || (kw.newPlace && !kw.roomAvailable),
+                        hasTimeConstraint: /(pas le temps|hâte|pressé)/i.test(engine.expression.normalized),
+                        hasTemporalReference: /(samedi|dimanche|cet après-midi|bientôt|retraite)/i.test(engine.expression.normalized),
+                        ambiguityLevel: engine._calculateAmbiguity(kw),
+                        clarityLevel: engine._calculateClarity(kw)
+                    };
+                };
+                engine._situationType = function(kw) {
+                    if (kw.newPlace && !kw.retirement) return "new_arrival";
+                    if (kw.retirement && !kw.newPlace) return "post_career";
+                    if (kw.emptyNest) return "empty_nest";
+                    if (kw.newPlace && kw.retirement) return "dual_transition";
+                    return "general";
+                };
+                engine._buildSituation = function() {
+                    const kw = engine.expression.keywords;
+                    engine.situation = {
+                        context: engine._situationType(kw),
+                        isolation: kw.loneliness || (kw.newPlace && !kw.roomAvailable),
+                        transition: kw.retirement || kw.emptyNest,
+                        unusedSpace: kw.roomAvailable,
+                        knownArea: kw.knowledge,
+                        availableTime: engine._assessAvailableTime(kw)
+                    };
+                };
+                engine._assessAvailableTime = function(kw) {
+                    if (kw.immediate) return "immediate";
+                    if (kw.shortTerm) return "short";
+                    if (kw.mediumTerm) return "medium";
+                    if (kw.longTerm) return "long";
+                    if (kw.retirement) return "flexible";
+                    return "unknown";
+                };
+                engine._identifyResources = function() {
+                    engine.resources = {
+                        physical: {
+                            room: engine.expression.keywords.roomAvailable ? { available: true, description: "Chambre/logement" } : { available: false },
+                            time: engine._timeAvailability(engine.expression.keywords),
+                            localKnowledge: engine.expression.keywords.knowledge ? { level: "good", description: "Connaît bien la région" } : { available: false }
+                        },
+                        skills: engine._identifySkills(engine.expression.keywords),
+                        connections: engine._assessConnections(engine.expression.keywords)
+                    };
+                };
+                engine._timeAvailability = function(kw) {
+                    if (kw.immediate) return { available: true, hours: "immédiat", constraint: "none" };
+                    if (kw.shortTerm) return { available: true, hours: "cette semaine", constraint: "schedule" };
+                    if (kw.retirement) return { available: true, hours: "flexible", constraint: "none" };
+                    return { available: false };
+                };
+                engine._identifySkills = function(kw) {
+                    const skills = [];
+                    const normalized = engine.expression.normalized;
+                    if (/sais|peu|compétence/i.test(normalized)) {
+                        if (/cuisiner|cuisine/i.test(normalized)) skills.push("cooking");
+                        if (/conduire|voiture/i.test(normalized)) skills.push("driving");
+                        if (/apprendre|enseignement/i.test(normalized)) skills.push("teaching");
+                        if (/jardin|plantes/i.test(normalized)) skills.push("gardening");
+                        if (/informatique|code/i.test(normalized)) skills.push("IT");
+                    }
+                    return skills.length > 0 ? skills : ["none detected"];
+                };
+                engine._assessConnections = function(kw) {
+                    if (kw.newPlace) return { level: "low", description: "Nouvel environnement, réseau à construire" };
+                    if (kw.retirement) return { level: "medium", description: "Retraité impliqué dans des activités" };
+                    return { level: "medium", description: "Réseau modéré, ouvert aux nouvelles rencontres" };
+                };
+                engine._identifyNeeds = function() {
+                    engine.needs = [];
+                    if (engine.expression.keywords.loneliness) engine.needs.push({ type: "social_connection", urgency: "medium" });
+                    if (/quoi faire|sortir|activité/i.test(engine.expression.normalized)) engine.needs.push({ type: "activity", urgency: "low" });
+                    if (/aide|support/i.test(engine.expression.normalized)) engine.needs.push({ type: "support", urgency: "low" });
+                    if (engine.situation.isolation && engine.needs.length === 0) engine.needs.push({ type: "exploration", urgency: "low", description: "Explorer la situation" });
+                };
+                engine._identifyConstraints = function() {
+                    engine.constraints = [];
+                    if (engine.expression.keywords.unclear) engine.constraints.push("high_uncertainty");
+                    if (!engine.expression.keywords.immediate && !engine.expression.keywords.shortTerm) engine.constraints.push("no_temporal_anchor");
+                    if (engine.situation.isolation) engine.constraints.push("social_isolation");
+                    if (engine.resources.physical.roomAvailable && engine.capacities.skills.length === 0) engine.constraints.push("resource_underutilized");
+                    if (engine.capacities.time.available === "flexible" && engine.situation.isolation) engine.constraints.push("time_without_company");
+                };
+                engine._determineTemporality = function() {
+                    const kw = engine.expression.keywords;
+                    if (kw.immediate) engine.temporality = { horizon: "immédiat", waiting: "none", nextSteps: "immediate_action" };
+                    else if (kw.shortTerm) engine.temporality = { horizon: "court", waiting: "cette semaine", nextSteps: "short_term_plan" };
+                    else if (kw.mediumTerm) engine.temporality = { horizon: "moyen", waiting: "prochain mois", nextSteps: "medium_term_plan" };
+                    else if (kw.retirement) engine.temporality = { horizon: "long", waiting: "exploration", nextSteps: "retirement_adjustment" };
+                    else engine.temporality = { horizon: "inconnu", waiting: "exploration", nextSteps: "further_analysis" };
+                };
+                engine._calculateUncertainty = function() {
+                    let score = 0;
+                    if (engine.expression.keywords.unclear) score += 30;
+                    if (engine.expression.keywords.unsure) score += 25;
+                    if (engine.situation.isolation && !engine.resources.physical.roomAvailable) score += 20;
+                    if (engine.needs.length === 0 || engine.needs[0].type === "exploration") score += 15;
+                    if (engine.constraints.length > 2) score += 10;
+                    engine.uncertainty = {
+                        level: Math.min(100, score),
+                        description: engine._uncertaintyDescription(score),
+                        areas: engine._uncertaintyAreas()
+                    };
+                };
+                engine._uncertaintyDescription = function(score) {
+                    if (score >= 70) return "Très élevé - Nécessite exploration";
+                    if (score >= 50) return "Élevé - Plusieurs possibilités ouvertes";
+                    if (score >= 30) return "Modéré - Quelques options claires";
+                    return "Faible - Situation relativement claire";
+                };
+                engine._uncertaintyAreas = function() {
+                    const areas = [];
+                    if (engine.expression.keywords.unclear) areas.push("intention");
+                    if (engine.situation.isolation) areas.push("contexte relationnel");
+                    if (engine.resources.physical.roomAvailable && !engine.capacities.time.available) areas.push("disponibilité");
+                    if (engine.temporality.horizon === "inconnu") areas.push("horizon_temporel");
+                    return areas;
+                };
+                engine._generatePossibilities = function() {
+                    engine.possibilities = {
+                        explicit: engine._explicitPossibilities(),
+                        implicit: engine._implicitPossibilities(),
+                        forbidden: engine._forbiddenAssumptions()
+                    };
+                };
+                engine._explicitPossibilities = function() {
+                    const possibilities = [];
+                    if (engine.resources.physical.roomAvailable) possibilities.push({ type: "housing", description: "Ressource: chambre disponible", uncertainty: engine.uncertainty.level });
+                    if (engine.needs.some(n => n.type === "social_connection")) possibilities.push({ type: "social", description: "Possibilité: rencontre ou connexion", uncertainty: engine.uncertainty.level });
+                    if (engine.capacities.time.available) possibilities.push({ type: "activity", description: "Possibilité: activité avec temps disponible", uncertainty: engine.uncertainty.level });
+                    if (engine.resources.physical.localKnowledge) possibilities.push({ type: "guidance", description: "Possibilité: partager connaissance locale", uncertainty: engine.uncertainty.level });
+                    return possibilities;
+                };
+                engine._implicitPossibilities = function() {
+                    const implicit = [];
+                    if (engine.situation.isolation && engine.resources.physical.roomAvailable && engine.capacities.time.available) implicit.push({ type: "retirement_transition", description: "Transition de retraite avec ressources sous-utilisées", detected: "sans_demande_explicite" });
+                    if (engine.situation.isolation && engine.needs.some(n => n.type === "social_connection") && engine.capacities.time.available) implicit.push({ type: "new_place_connection", description: "Nouvel environnement - ouverture aux rencontres", detected: "sans_demande_explicite" });
+                    return implicit;
+                };
+                engine._forbiddenAssumptions = function() {
+                    return [
+                        { prohibition: "room_available → housing_demand", reason: "Resource exists but intent unknown" },
+                        { prohibition: "time_available → activity_seek", reason: "Availability ≠ Intent" },
+                        { prohibition: "knowledge → tour_guide", reason: "Knowledge ≠ Intent_to_share" },
+                        { prohibition: "isolation → social_demand", reason: "State ≠ Intent" },
+                        { prohibition: "retirement → occupation_seek", reason: "Life_stage ≠ Intent" }
+                    ];
+                };
+            }
+            return {
+                analyze: function(text) {
+                    const engine = new Engine();
+                    engine.analyze(text);
+                    return {
+                        expression: engine.expression.raw,
+                        situation: engine.situation,
+                        resources: engine.resources,
+                        needs: engine.needs,
+                        capacities: engine.capacities,
+                        constraints: engine.constraints,
+                        temporality: engine.temporality,
+                        uncertainty: engine.uncertainty,
+                        possibilities: engine.possibilities,
+                        confidence: engine.confidence,
+                        analysis_depth: "V3.1 Possibility Engine",
+                        avoided_conclusions: engine.possibilities.forbidden.map(f => f.prohibition)
+                    };
+                },
+                formatForDisplay: function(result) {
+                    const lines = [];
+                    lines.push("Situation: " + (result.situation?.context || "non_classifiée"));
+                    lines.push("Isolation: " + (result.situation?.isolation ? "oui" : "non"));
+                    lines.push("Transition: " + (result.situation?.transition ? "oui" : "non"));
+                    lines.push("\nRessources identifiées:");
+                    if (result.resources && result.resources.physical && result.resources.physical.roomAvailable) lines.push("  - Chambre/logement: disponible");
+                    if (result.resources && result.resources.physical && result.resources.physical.timeAvailable) lines.push("  - Temps: " + result.resources.physical.timeAvailable);
+                    if (result.resources && result.resources.physical && result.resources.physical.localKnowledge) lines.push("  - Connaissance locale: " + result.resources.physical.localKnowledge.level);
+                    lines.push("\nBesoins:");
+                    if (result.needs && result.needs.length > 0) {
+                        result.needs.forEach(n => lines.push("  - " + n.type + ": urgence " + n.urgency));
+                    } else {
+                        lines.push("  - Aucun besoin spécifique détecté");
+                    }
+                    lines.push("\nCapacités:");
+                    if (result.capacities && result.capacities.timeAvailable) lines.push("  - Temps disponible: " + result.capacities.timeAvailable);
+                    if (result.capacities && result.capacities.skills && result.capacities.skills.length > 0) lines.push("  - Compétences: " + result.capacities.skills.join(", "));
+                    lines.push("\nIncertitude: " + result.uncertainty.level + "% - " + result.uncertainty.description);
+                    lines.push("\nPossibilités émergentes:");
+                    if (result.possibilities && result.possibilities.explicit) {
+                        result.possibilities.explicit.forEach(p => lines.push("  - [ " + p.type + " ] " + p.description));
+                    }
+                    if (result.possibilities && result.possibilities.implicit) {
+                        result.possibilities.implicit.forEach(p => lines.push("  • " + p.description));
+                    }
+                    lines.push("\nConclusions délibérément évitées:");
+                    if (result.possibilities && result.possibilities.forbidden) {
+                        result.possibilities.forbidden.forEach(f => lines.push("  • " + f.prohibition));
+                    } else {
+                        lines.push("  Aucune conclusion hâtive imposée");
+                    }
+                    return lines.join("\n");
+                }
+            };
+        }
+        window.NEXUS = window.NEXUS || {};
+        window.NEXUS.PossibilityEngine = analyzePossibility;
+        window.analyzePossibility = analyzePossibility;
+        window.PossibilityEngine = analyzePossibility;
+        ;
