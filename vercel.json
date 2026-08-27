@@ -1,6 +1,15 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/V10_gaia_nexus_world.html" }
+    { "source": "/", "destination": "/V11_gaia_nexus_world.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
   ]
 }
