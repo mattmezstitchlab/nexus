@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS • L'Internet des Intentions</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #00f7ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: radial-gradient(circle at center, #1a0b3d 0%, #0a0519 70%);
+            color: #e0d4ff;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(10, 5, 25, 0.7), transparent);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo-dot {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #00f7ff, #ff00cc);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a0519;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 0 25px rgba(0, 247, 255, 0.8);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 32px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .nav a {
+            color: #c3b0ff;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav a:hover {
+            color: white;
+            text-shadow: 0 0 15px rgba(0, 247, 255, 0.6);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .mode-toggle {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 30px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-btn {
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-active {
+            background: linear-gradient(90deg, #7b5eff, #ff00cc);
+            color: white;
+            box-shadow: 0 0 20px rgba(123, 94, 255, 0.5);
+        }
+        
+        .hero {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            max-width: 380px;
+            z-index: 10;
+        }
+        
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 52px;
+            line-height: 1.05;
+            font-weight: 600;
+            background: linear-gradient(90deg, #a0f0ff, #ff9eff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        
+        .hero p {
+            font-size: 21px;
+            line-height: 1.4;
+            color: #d4c3ff;
+            margin-bottom: 32px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #a38dff;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(0, 247, 255, 0.5);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .cta-button:hover {
+            background: rgba(0, 247, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 0 40px rgba(0, 247, 255, 0.6);
+        }
+        
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        .stats-panel {
+            position: absolute;
+            top: 110px;
+            right: 50px;
+            background: rgba(15, 8, 40, 0.75);
+            border-radius: 24px;
+            padding: 24px;
+            width: 240px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(120, 90, 255, 0.3);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0);
+            z-index: 30;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        
+        .stat:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .stat-info h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+        
+        .stat-info p {
+            font-size: 13px;
+            color: #b8a4ff;
+            margin-top: 4px;
+        }
+        
+        .live-map {
+            position: absolute;
+            bottom: 180px;
+            right: 50px;
+            width: 240px;
+            background: rgba(15, 8, 40, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(120, 90, 255, 0.25);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0);
+            z-index: 30;
+        }
+        
+        .map-header {
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .map-content {
+            height: 140px;
+            background: linear-gradient(45deg, #12082a, #2a1b4f);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .world-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle, rgba(120,180,255,0.7) 1px, transparent 0) 20px 30px / 45px 45px,
+                radial-gradient(circle, rgba(255,120,220,0.6) 1px, transparent 0) 60px 70px / 55px 55px;
+            opacity: 0.6;
+            animation: pulse-map 8s infinite linear;
+        }
+        
+        .intent-input-container {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 620px;
+            background: rgba(20, 10, 55, 0.85);
+            border-radius: 60px;
+            padding: 8px;
+            box-shadow: 0 0 60px -10px rgb(120 100 255),
+                        0 25px 50px -12px rgb(0 0 0);
+            border: 2px solid rgba(180, 120, 255, 0.4);
+            z-index: 50;
+            backdrop-filter: blur(24px);
+        }
+        
+        .intent-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 18px 32px;
+            font-size: 18px;
+            color: #f0e6ff;
+            font-family: inherit;
+        }
+        
+        .intent-input::placeholder {
+            color: #8877aa;
+        }
+        
+        .suggestions {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 40;
+            flex-wrap: wrap;
+            max-width: 620px;
+            justify-content: center;
+        }
+        
+        .suggestion-pill {
+            background: rgba(60, 30, 120, 0.6);
+            color: #d4c3ff;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(180, 140, 255, 0.3);
+            box-shadow: 0 8px 16px -8px rgb(120 90 255);
+        }
+        
+        .suggestion-pill:hover {
+            background: rgba(120, 60, 255, 0.8);
+            transform: translateY(-4px);
+            color: white;
+        }
+        
+        .side-panel {
+            position: absolute;
+            left: 50px;
+            bottom: 120px;
+            width: 260px;
+            background: rgba(15, 8, 40, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 30;
+            border: 1px solid rgba(100, 80, 255, 0.3);
+            backdrop-filter: blur(16px);
+        }
+        
+        .panel-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            color: #a38dff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .recent-intent {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px;
+            align-items: flex-start;
+        }
+        
+        .recent-intent:last-child {
+            margin-bottom: 0;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-size: cover;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 3px rgba(120, 100, 255, 0.3);
+        }
+        
+        .intent-text {
+            font-size: 13.5px;
+            line-height: 1.35;
+        }
+        
+        .intent-time {
+            font-size: 11px;
+            color: #776699;
+            margin-top: 4px;
+        }
+        
+        .footer-values {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+            z-index: 20;
+        }
+        
+        .value {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .value-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #9988cc;
+            font-weight: 500;
+        }
+        
+        .value-icon {
+            font-size: 22px;
+        }
+        
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(120, 60, 255, 0.35) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+            animation: slow-pulse 15s infinite ease-in-out;
+            border-radius: 50%;
+        }
+        
+        .title-bar {
+            position: absolute;
+            top: 110px;
+            left: 50px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #c8b0ff;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        @keyframes pulse-map {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.85; }
+            100% { opacity: 0.5; }
+        }
+        
+        @keyframes slow-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+        
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #7b5eff, transparent);
+            box-shadow: 0 0 12px #7b5eff;
+            opacity: 0.3;
+            z-index: 5;
+            animation: dash 4s linear infinite;
+        }
+        
+        .floating-label {
+            position: absolute;
+            background: rgba(10, 5, 35, 0.9);
+            color: #00f7ff;
+            font-size: 12px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow"></div>
+    
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-dot">N</div>
+            <div>NEXUS</div>
+        </div>
+        
+        <div class="nav">
+            <a href="#">Accueil</a>
+            <a href="#">Explorer</a>
+            <a href="#">Intentions</a>
+            <a href="#">Connexion</a>
+            <a href="#">À propos</a>
+        </div>
+        
+        <div class="header-right">
+            <div class="mode-toggle">
+                <div onclick="toggleMode(this)" class="mode-btn mode-active">✦ Mode Cristal</div>
+                <div onclick="toggleMode(this)" class="mode-btn">🌙</div>
+            </div>
+            <div style="width: 42px; height: 42px; background: linear-gradient(#ff00cc, #7b5eff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; box-shadow: 0 0 25px #ff00cc;">👤</div>
+        </div>
+    </div>
+    
+    <!-- HERO TEXT -->
+    <div class="hero">
+        <div class="subtitle">Ce qui cherche trouve ce qui peut.</div>
+        <h1>Le monde<br>vous répond.</h1>
+        <p style="font-size: 17px; margin-bottom: 40px; color: #bbadff;">Exprimez une intention.<br>Le monde s'organise.<br>Les possibilités se connectent.</p>
+        
+        <a href="#" onclick="playIntroVideo(); return false;" class="cta-button">
+            <span style="font-size: 22px;">▶</span>
+            <span>Voir le film</span>
+        </a>
+    </div>
+    
+    <!-- LEFT SIDE PANEL -->
+    <div class="side-panel">
+        <div class="panel-title">
+            <span style="font-size: 18px;">⟡</span>
+            INTENTIONS RÉCENTES
+        </div>
+        
+        <div class="recent-intent">
+            <div class="avatar" style="background-image: url('https://picsum.photos/id/64/64/64')"></div>
+            <div>
+                <div class="intent-text">Apprendre la guitare</div>
+                <div class="intent-time">Il y a 2 min • Paris</div>
+            </div>
+        </div>
+        
+        <div class="recent-intent">
+            <div class="avatar" style="background-image: url('https://picsum.photos/id/201/64/64')"></div>
+            <div>
+                <div class="intent-text">Besoin d'un hébergement pour 3 nuits</div>
+                <div class="intent-time">Il y a 4 min • Lyon</div>
+            </div>
+        </div>
+        
+        <div class="recent-intent">
+            <div class="avatar" style="background-image: url('https://picsum.photos/id/29/64/64')"></div>
+            <div>
+                <div class="intent-text">Proposer covoiturage Lille → Paris demain</div>
+                <div class="intent-time">Il y a 6 min • Lille</div>
+            </div>
+        </div>
+        
+        <div onclick="viewAllIntents()" style="margin-top: 20px; font-size: 13px; color: #00ddff; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <span>Voir toutes les intentions</span>
+            <span style="font-size: 18px;">→</span>
+        </div>
+    </div>
+    
+    <!-- STATS PANEL -->
+    <div class="stats-panel">
+        <div class="stat">
+            <div class="stat-icon" style="color: #ff6bcc;">♡</div>
+            <div class="stat-info">
+                <h3 id="stat-intents">12 687</h3>
+                <p>intentions exprimées en ce moment</p>
+            </div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-icon" style="color: #00f7ff;">◉</div>
+            <div class="stat-info">
+                <h3 id="stat-needs">8 941</h3>
+                <p>besoins en cours</p>
+            </div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-icon" style="color: #ffd700;">✋</div>
+            <div class="stat-info">
+                <h3 id="stat-capacities">19 932</h3>
+                <p>capacités disponibles</p>
+            </div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-icon" style="color: #a0ffcc;">⟐</div>
+            <div class="stat-info">
+                <h3 id="stat-links">2 378</h3>
+                <p>connexions créées aujourd'hui</p>
+            </div>
+        </div>
+        
+        <div style="height: 1px; background: rgba(160, 120, 255, 0.3); margin: 18px 0;"></div>
+        
+        <div onclick="showLiveMap()" style="font-size: 13px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="color: #6cf;">🌍</span>
+                <span style="font-weight: 600;">Carte vivante des besoins</span>
+            </div>
+            <span style="color: #6cf; font-size: 18px;">›</span>
+        </div>
+    </div>
+    
+    <!-- LIVE MAP -->
+    <div class="live-map">
+        <div class="map-header">
+            <span style="color: #7af;">◉</span>
+            <span>ACTIVITÉ MONDIALE EN TEMPS RÉEL</span>
+        </div>
+        <div class="map-content">
+            <div class="world-dots"></div>
+            <!-- Simulated map dots -->
+            <div style="position:absolute; top:35%; left:25%; width:9px; height:9px; background:#00ffff; border-radius:50%; box-shadow:0 0 14px #00ffff; animation: ping 3s infinite;"></div>
+            <div style="position:absolute; top:55%; left:65%; width:7px; height:7px; background:#ff44cc; border-radius:50%; box-shadow:0 0 14px #ff44cc; animation: ping 2.2s infinite 0.8s;"></div>
+            <div style="position:absolute; top:25%; left:72%; width:11px; height:11px; background:#aaff77; border-radius:50%; box-shadow:0 0 14px #aaff77; animation: ping 4s infinite 1.5s;"></div>
+            <div style="position:absolute; top:68%; left:38%; width:6px; height:6px; background:#ffdd66; border-radius:50%; box-shadow:0 0 14px #ffdd66; animation: ping 2.8s infinite 0.4s;"></div>
+            
+            <div style="position: absolute; bottom: 12px; left: 20px; font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 10px; border-radius: 12px; color: #99eeff;">
+                184 intentions actives
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3D CANVAS -->
+    <div class="canvas-container" id="canvas-container"></div>
+    
+    <!-- INPUT -->
+    <div class="intent-input-container">
+        <input id="intent-input" type="text" class="intent-input" 
+               placeholder="Qu'est-ce qui est vivant pour toi en ce moment ?" 
+               onkeypress="if(event.key === 'Enter') submitIntent()">
+        
+        <div style="position:absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; background: linear-gradient(135deg, #00f7ff, #c34eff); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 25px #00f7ff;" onclick="submitIntent()">
+            <span style="font-size: 24px; color: #0a0519;">↗</span>
+        </div>
+    </div>
+    
+    <!-- SUGGESTIONS -->
+    <div class="suggestions">
+        <div onclick="quickIntent(this)" class="suggestion-pill">Je cherche quelque chose</div>
+        <div onclick="quickIntent(this)" class="suggestion-pill">J'ai besoin d'aide</div>
+        <div onclick="quickIntent(this)" class="suggestion-pill">Je peux aider</div>
+        <div onclick="quickIntent(this)" class="suggestion-pill">J'ai quelque chose à proposer</div>
+    </div>
+    
+    <!-- RIGHT INSPIRING CONNECTIONS -->
+    <div style="position: absolute; top: 220px; right: 50px; width: 270px; z-index: 30;">
+        <div style="background: rgba(15, 8, 40, 0.75); border-radius: 22px; padding: 22px; border: 1px solid rgba(160, 120, 255, 0.25); backdrop-filter: blur(20px);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 14px; color: #c8a8ff;">
+                <span>⟡</span>
+                <span style="font-weight: 600; letter-spacing: 0.5px;">CONNEXIONS INSPIRANTES</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; gap: 14px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: url('https://picsum.photos/id/1005/64/64') center/cover; flex-shrink: 0;"></div>
+                    <div style="font-size: 13.5px; line-height: 1.4;">
+                        Marie a aidé Pierre pour son déménagement<br>
+                        <span style="font-size: 11px; color: #7a9;">à Nantes • il y a 17 min</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 14px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: url('https://picsum.photos/id/201/64/64') center/cover; flex-shrink: 0;"></div>
+                    <div style="font-size: 13.5px; line-height: 1.4;">
+                        Julie a trouvé un professeur de violon<br>
+                        <span style="font-size: 11px; color: #7a9;">à Bordeaux • il y a 41 min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div onclick="viewAllConnections()" style="margin-top: 22px; font-size: 13px; color: #7af; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+                Toutes les connexions 
+                <span style="font-size: 20px; line-height: 14px;">›</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FOOTER VALUES -->
+    <div class="footer-values">
+        <div class="value">
+            <div class="value-icon">🌌</div>
+            <div class="value-label">Universel</div>
+            <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Pour tous.<br>Partout.<br>Sans barrière.</div>
+        </div>
+        <div class="value">
+            <div class="value-icon">♡</div>
+            <div class="value-label">Bienveillant</div>
+            <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Respect, confiance<br>et entraide.</div>
+        </div>
+        <div class="value">
+            <div class="value-icon">🧠</div>
+            <div class="value-label">Intelligent</div>
+            <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">L'IA comprend,<br>relie, suggère.</div>
+        </div>
+        <div class="value">
+            <div class="value-icon">🌍</div>
+            <div class="value-label">Local &amp; Global</div>
+            <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Agit près de chez vous,<br>connecte le monde.</div>
+        </div>
+        <div class="value">
+            <div class="value-icon">↗</div>
+            <div class="value-label">Évolutif</div>
+            <div style="font-size:10px; color:#665588; text-align:center; line-height:1.1;">Plus il grandit,<br>plus il aide.</div>
+        </div>
+    </div>
+    
+    <!-- INSTRUCTION -->
+    <div style="position: absolute; bottom: 190px; left: 50%; transform: translateX(-50%); background: rgba(10,5,35,0.6); color: #99ddff; font-size: 13px; padding: 6px 22px 6px 14px; border-radius: 30px; display: flex; align-items: center; gap: 10px; z-index: 60; box-shadow: 0 10px 30px -15px #000; white-space: nowrap;">
+        <div style="width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px;">👇</div>
+        <div>Faites glisser pour faire tourner le cube</div>
+    </div>
+    
+    <!-- Floating labels for faces -->
+    <div id="face-label-1" class="floating-label">BESOIN</div>
+    <div id="face-label-2" class="floating-label">AIDER</div>
+    <div id="face-label-3" class="floating-label">PROPOSER</div>
+    <div id="face-label-4" class="floating-label">CHERCHER</div>
+    <div id="face-label-5" class="floating-label">RESSENTIR</div>
+    <div id="face-label-6" class="floating-label">RÊVER</div>
+    
+    <script>
+        // THREE.JS SETUP
+        let scene, camera, renderer, cube, controls;
+        let particles = [];
+        let light1, light2;
+        let time = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationY = 0;
+        let targetRotationX = 0;
+        let currentRotationY = 0;
+        let currentRotationX = 0;
+        let isDragging = false;
+        let previousMouseX = 0;
+        let previousMouseY = 0;
+        
+        const faceColors = [
+            0x00f7ff, // cyan
+            0xff00cc, // magenta
+            0x7b5eff, // violet
+            0x00ff9f, // emerald
+            0xffee00, // yellow
+            0xff5500  // orange
+        ];
+        
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+            
+            // Scene
+            scene = new THREE.Scene();
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 6.5);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+            
+            // LIGHTS
+            const ambient = new THREE.AmbientLight(0x9988ff, 0.6);
+            scene.add(ambient);
+            
+            light1 = new THREE.PointLight(0x00f7ff, 3.5, 100);
+            light1.position.set(5, 8, 12);
+            scene.add(light1);
+            
+            light2 = new THREE.PointLight(0xff00cc, 3.5, 100);
+            light2.position.set(-8, -5, -10);
+            scene.add(light2);
+            
+            const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x112244, 0.6);
+            scene.add(hemiLight);
+            
+            // THE CUBE
+            const cubeGeometry = new THREE.BoxGeometry(2.8, 2.8, 2.8, 4, 4, 4);
+            
+            // Custom material with transparency and emissive
+            const cubeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x112233,
+                shininess: 95,
+                specular: 0xffffff,
+                transparent: true,
+                opacity: 0.75,
+                emissive: 0x334455,
+                emissiveIntensity: 0.6,
+                flatShading: false,
+                side: THREE.DoubleSide
+            });
+            
+            cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+            scene.add(cube);
+            
+            // INNER GLOW LINES - wireframe
+            const wireMat = new THREE.LineBasicMaterial({
+                color: 0x88ddff,
+                transparent: true,
+                opacity: 0.45
+            });
+            
+            const wireGeo = new THREE.EdgesGeometry(cubeGeometry);
+            const wireframe = new THREE.LineSegments(wireGeo, wireMat);
+            cube.add(wireframe);
+            
+            // Create colored transparent planes for each face
+            createFacePlanes();
+            
+            // Add inner core
+            const coreGeo = new THREE.IcosahedronGeometry(0.8, 1);
+            const coreMat = new THREE.MeshBasicMaterial({
+                color: 0xaaffff,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            cube.add(core);
+            
+            // PARTICLES / CONSTELLATION
+            createParticles();
+            
+            // CONTROLS
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.12;
+            controls.enableZoom = true;
+            controls.minDistance = 3.5;
+            controls.maxDistance = 14;
+            controls.enablePan = false;
+            controls.rotateSpeed = 0.6;
+            
+            // Mouse interaction
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mouseup', onMouseUp);
+            
+            // Touch support
+            window.addEventListener('touchstart', onTouchStart);
+            window.addEventListener('touchmove', onTouchMove);
+            window.addEventListener('touchend', onTouchEnd);
+            
+            // Resize
+            window.addEventListener('resize', onResize);
+            
+            // Add subtle rotating rings
+            createRings();
+            
+            animate();
+        }
+        
+        function createFacePlanes() {
+            const size = 2.75;
+            const planeGeo = new THREE.PlaneGeometry(size, size);
+            
+            // FRONT
+            const plane1 = new THREE.Mesh(
+                planeGeo,
+                new THREE.MeshBasicMaterial({
+                    color: faceColors[0],
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.12,
+                    blending: THREE.AdditiveBlending
+                })
+            );
+            plane1.rotation.y = 0;
+            plane1.position.z = 1.41;
+            cube.add(plane1);
+            
+            // BACK
+            const plane2 = plane1.clone();
+            plane2.rotation.y = Math.PI;
+            plane2.position.z = -1.41;
+            cube.add(plane2);
+            
+            // RIGHT
+            const plane3 = plane1.clone();
+            plane3.rotation.y = Math.PI / 2;
+            plane3.position.x = 1.41;
+            cube.add(plane3);
+            
+            // LEFT
+            const plane4 = plane1.clone();
+            plane4.rotation.y = -Math.PI / 2;
+            plane4.position.x = -1.41;
+            cube.add(plane4);
+            
+            // TOP
+            const plane5 = plane1.clone();
+            plane5.rotation.x = -Math.PI / 2;
+            plane5.position.y = 1.41;
+            cube.add(plane5);
+            
+            // BOTTOM
+            const plane6 = plane1.clone();
+            plane6.rotation.x = Math.PI / 2;
+            plane6.position.y = -1.41;
+            cube.add(plane6);
+            
+            // Store for later animation
+            cube.userData.facePlanes = [plane1, plane2, plane3, plane4, plane5, plane6];
+        }
+        
+        function createParticles() {
+            const particleCount = 420;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            
+            const colorOptions = [0x00ffff, 0xff00ff, 0x88ffaa, 0xffee66];
+            
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                const radius = 6 + Math.random() * 9;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                
+                positions[i]     = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i + 2] = radius * Math.cos(phi);
+                
+                const chosenColor = new THREE.Color(colorOptions[Math.floor(Math.random() * colorOptions.length)]);
+                colors[i]     = chosenColor.r;
+                colors[i + 1] = chosenColor.g;
+                colors[i + 2] = chosenColor.b;
+                
+                sizes[i / 3] = Math.random() * 3.5 + 1.5;
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.08,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.75,
+                blending: THREE.AdditiveBlending,
+                depthTest: false
+            });
+            
+            const pointCloud = new THREE.Points(geometry, material);
+            scene.add(pointCloud);
+            particles.push(pointCloud);
+        }
+        
+        function createRings() {
+            for (let i = 0; i < 3; i++) {
+                const ringGeo = new THREE.TorusGeometry(4.2 + i * 1.1, 0.015, 32, 120);
+                const ringMat = new THREE.MeshBasicMaterial({
+                    color: i === 0 ? 0x00ffff : (i === 1 ? 0xff00cc : 0xaaffff),
+                    transparent: true,
+                    opacity: 0.1 + i * 0.07,
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.random() * Math.PI;
+                ring.userData = { speed: 0.0008 + i * 0.0006, axis: i };
+                scene.add(ring);
+                particles.push(ring); // reuse array
+            }
+        }
+        
+        function onMouseMove(e) {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            
+            if (isDragging) {
+                const deltaX = e.clientX - previousMouseX;
+                const deltaY = e.clientY - previousMouseY;
+                
+                targetRotationY += deltaX * 0.0045;
+                targetRotationX += deltaY * 0.0035;
+                
+                // Clamp vertical rotation
+                targetRotationX = Math.max(-1.1, Math.min(1.1, targetRotationX));
+                
+                previousMouseX = e.clientX;
+                previousMouseY = e.clientY;
+            }
+            
+            // Update floating labels
+            updateFaceLabels();
+        }
+        
+        function onMouseDown(e) {
+            if (e.button === 0) {
+                isDragging = true;
+                previousMouseX = e.clientX;
+                previousMouseY = e.clientY;
+                controls.enabled = false;
+            }
+        }
+        
+        function onMouseUp() {
+            isDragging = false;
+            controls.enabled = true;
+        }
+        
+        function onTouchStart(e) {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                previousMouseX = e.touches[0].clientX;
+                previousMouseY = e.touches[0].clientY;
+            }
+        }
+        
+        function onTouchMove(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+            
+            const deltaX = e.touches[0].clientX - previousMouseX;
+            const deltaY = e.touches[0].clientY - previousMouseY;
+            
+            targetRotationY += deltaX * 0.006;
+            targetRotationX += deltaY * 0.005;
+            targetRotationX = Math.max(-1.4, Math.min(1.4, targetRotationX));
+            
+            previousMouseX = e.touches[0].clientX;
+            previousMouseY = e.touches[0].clientY;
+            
+            e.preventDefault();
+        }
+        
+        function onTouchEnd() {
+            isDragging = false;
+        }
+        
+        function updateFaceLabels() {
+            // This is a fake simulation of labels following cube faces
+            const labels = [
+                document.getElementById('face-label-1'),
+                document.getElementById('face-label-2'),
+                document.getElementById('face-label-3'),
+                document.getElementById('face-label-4'),
+                document.getElementById('face-label-5'),
+                document.getElementById('face-label-6')
+            ];
+            
+            const texts = ["BESOIN", "PROPOSER", "AIDER", "CHERCHER", "RESSENTIR", "RÊVER"];
+            
+            for (let i = 0; i < 6; i++) {
+                const label = labels[i];
+                if (!label) continue;
+                
+                // Randomly show labels based on cube rotation
+                const shouldShow = Math.random() > 0.7;
+                
+                if (shouldShow) {
+                    label.textContent = texts[i];
+                    label.style.opacity = 0.85;
+                    label.style.left = (window.innerWidth * (0.3 + Math.random() * 0.4)) + "px";
+                    label.style.top = (100 + Math.random() * 400) + "px";
+                } else {
+                    label.style.opacity = 0;
+                }
+            }
+        }
+        
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.016;
+            
+            // Animate cube
+            if (cube) {
+                // Gentle autonomous rotation
+                currentRotationY = currentRotationY * 0.92 + targetRotationY * 0.08;
+                currentRotationX = currentRotationX * 0.92 + targetRotationX * 0.08;
+                
+                cube.rotation.y = currentRotationY;
+                cube.rotation.x = currentRotationX * 0.6;
+                
+                // Pulse the cube
+                const pulse = Math.sin(time * 1.8) * 0.02 + 1;
+                cube.scale.set(pulse, pulse, pulse);
+                
+                // Animate face planes
+                if (cube.userData.facePlanes) {
+                    cube.userData.facePlanes.forEach((plane, i) => {
+                        plane.material.opacity = 0.12 + Math.sin(time * 2 + i) * 0.05;
+                    });
+                }
+                
+                // Rotate inner core
+                if (cube.children.length > 1) {
+                    cube.children[1].rotation.y = time * 0.4;
+                }
+            }
+            
+            // Animate particles
+            particles.forEach((p, index) => {
+                if (p instanceof THREE.Points) {
+                    p.rotation.y = time * 0.03;
+                } else if (p instanceof THREE.Mesh && p.geometry.type === "TorusGeometry") {
+                    if (p.userData.axis === 0) p.rotation.z = time * p.userData.speed;
+                    if (p.userData.axis === 1) p.rotation.x = time * p.userData.speed * 1.4;
+                    if (p.userData.axis === 2) p.rotation.y = time * p.userData.speed * 0.7;
+                }
+            });
+            
+            // Light animation
+            if (light1 && light2) {
+                light1.position.x = Math.sin(time * 0.6) * 9;
+                light1.position.z = Math.cos(time * 0.6) * 9;
+                light2.position.x = Math.cos(time * 0.9) * 10;
+                light2.position.z = Math.sin(time * 0.9) * -8;
+            }
+            
+            // Camera gentle bob
+            if (camera) {
+                camera.position.y = Math.sin(time * 0.6) * 0.6;
+                camera.lookAt(0, 0, 0);
+            }
+            
+            if (controls) controls.update();
+            
+            // Update live numbers
+            if (Math.random() > 0.96) {
+                incrementLiveStats();
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function incrementLiveStats() {
+            const intentsEl = document.getElementById('stat-intents');
+            let current = parseInt(intentsEl.innerText.replace(' ', ''));
+            current += Math.floor(Math.random() * 4) + 1;
+            intentsEl.innerText = current.toLocaleString('fr-FR');
+            
+            const linksEl = document.getElementById('stat-links');
+            let links = parseInt(linksEl.innerText.replace(' ', ''));
+            if (Math.random() > 0.7) {
+                links += 1;
+                linksEl.innerText = links.toLocaleString('fr-FR');
+            }
+        }
+        
+        function submitIntent() {
+            const input = document.getElementById('intent-input');
+            const val = input.value.trim();
+            
+            if (!val) return;
+            
+            // React to input
+            if (cube) {
+                // Flash the cube
+                cube.material.emissive = new THREE.Color(0xaaffff);
+                cube.material.emissiveIntensity = 2.5;
+                
+                setTimeout(() => {
+                    if (cube) {
+                        cube.material.emissive = new THREE.Color(0x334455);
+                        cube.material.emissiveIntensity = 0.6;
+                    }
+                }, 520);
+                
+                // Add a few extra particles
+                createBurstParticles();
+            }
+            
+            // Show a temporary confirmation
+            showConfirmationToast(val);
+            
+            // Clear input
+            input.value = '';
+        }
+        
+        function createBurstParticles() {
+            if (!scene) return;
+            
+            for (let i = 0; i < 35; i++) {
+                const geometry = new THREE.SphereGeometry(0.05, 5, 5);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0x99ffff,
+                    transparent: true,
+                    opacity: 1,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const particle = new THREE.Mesh(geometry, material);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 2 + Math.random() * 3;
+                
+                particle.userData = {
+                    life: 80,
+                    vx: Math.cos(angle) * velocity * 0.1,
+                    vy: (Math.random() - 0.5) * velocity * 0.1,
+                    vz: Math.sin(angle) * velocity * 0.1
+                };
+                
+                particle.position.set(
+                    (Math.random() - 0.5) * 1.2,
+                    (Math.random() - 0.5) * 1.2,
+                    (Math.random() - 0.5) * 1.2
+                );
+                
+                scene.add(particle);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (particle.parent) scene.remove(particle);
+                }, 2200);
+            }
+        }
+        
+        function showConfirmationToast(text) {
+            const toast = document.createElement('div');
+            toast.style.position = 'absolute';
+            toast.style.bottom = '210px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.background = 'rgba(40, 15, 110, 0.95)';
+            toast.style.color = '#aaffdd';
+            toast.style.padding = '14px 28px';
+            toast.style.borderRadius = '30px';
+            toast.style.boxShadow = '0 0 35px -5px rgb(120 240 200)';
+            toast.style.whiteSpace = 'nowrap';
+            toast.style.zIndex = '9999';
+            toast.style.opacity = '0';
+            toast.style.transition = 'all 1.2s cubic-bezier(0.23,1,0.32,1)';
+            toast.style.fontSize = '15px';
+            toast.innerHTML = `Intention capturée : <strong>${text.substring(0, 26)}${text.length > 26 ? '...' : ''}</strong>`;
+            document.body.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.bottom = '260px';
+            }, 10);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.bottom = '200px';
+                
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 1200);
+            }, 2800);
+        }
+        
+        function quickIntent(el) {
+            const text = el.textContent;
+            const input = document.getElementById('intent-input');
+            input.value = text;
+            
+            // Pulse the element
+            el.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                el.style.transform = 'scale(1)';
+            }, 120);
+            
+            // Auto submit after a short delay
+            setTimeout(() => {
+                submitIntent();
+            }, 420);
+        }
+        
+        function toggleMode(el) {
+            const siblings = el.parentElement.children;
+            for (let i = 0; i < siblings.length; i++) {
+                siblings[i].classList.remove('mode-active');
+            }
+            el.classList.add('mode-active');
+        }
+        
+        function playIntroVideo() {
+            const messages = [
+                "Connexion à la conscience collective...",
+                "Synchronisation des intentions...",
+                "Activation du cristal central..."
+            ];
+            
+            let i = 0;
+            const originalPlaceholder = document.getElementById('intent-input').placeholder;
+            
+            const interval = setInterval(() => {
+                if (i < messages.length) {
+                    document.getElementById('intent-input').placeholder = messages[i];
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    document.getElementById('intent-input').placeholder = originalPlaceholder;
+                    
+                    // Trigger a big burst
+                    if (cube) {
+                        cube.material.emissiveIntensity = 5;
+                        setTimeout(() => cube.material.emissiveIntensity = 0.6, 800);
+                    }
+                }
+            }, 700);
+            
+            createBurstParticles();
+            createBurstParticles();
+        }
+        
+        function viewAllIntents() {
+            const input = document.getElementById('intent-input');
+            input.value = "Afficher toutes les intentions actives...";
+            setTimeout(() => {
+                submitIntent();
+            }, 300);
+        }
+        
+        function viewAllConnections() {
+            alert("🌐 Ouverture de l'explorateur de connexions (simulation)...\n\nDes milliers d'intentions se relient en ce moment même.");
+        }
+        
+        function showLiveMap() {
+            const map = document.querySelector('.live-map');
+            map.style.transition = 'transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+            map.style.transform = 'scale(1.12) translateY(-20px)';
+            
+            setTimeout(() => {
+                map.style.transform = 'scale(1) translateY(0)';
+            }, 1200);
+            
+            // Add some dots
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    createBurstParticles();
+                }, i * 70);
+            }
+        }
+        
+        // KEYBOARD SHORTCUTS
+        function handleKeys(e) {
+            if (e.metaKey && e.key === "k") {
+                e.preventDefault();
+                const input = document.getElementById('intent-input');
+                input.focus();
+            }
+        }
+        
+        // Initialize everything
+        function initializeNexus() {
+            initThree();
+            
+            // Live counter animation
+            let count = 12543;
+            const counter = setInterval(() => {
+                count += Math.round(Math.random() * 10) + 4;
+                document.getElementById('stat-intents').innerText = count.toLocaleString('fr-FR');
+                
+                if (count > 17000) clearInterval(counter);
+            }, 2100);
+            
+            // Make the input glow on focus
+            const intentInput = document.getElementById('intent-input');
+            intentInput.addEventListener('focus', () => {
+                intentInput.parentElement.style.boxShadow = '0 0 70px -10px #00ffff, 0 0 30px 10px rgba(180, 80, 255, 0.6)';
+                if (cube) cube.material.emissiveIntensity = 2.2;
+            });
+            
+            intentInput.addEventListener('blur', () => {
+                intentInput.parentElement.style.boxShadow = '0 0 60px -10px rgb(120 100 255), 0 25px 50px -12px rgb(0 0 0)';
+                if (cube) cube.material.emissiveIntensity = 0.6;
+            });
+            
+            // Keyboard
+            document.addEventListener('keydown', handleKeys);
+            
+            // Demo: random intention every 13 seconds
+            setInterval(() => {
+                if (Math.random() > 0.6 && document.getElementById('intent-input').value === '') {
+                    const examples = [
+                        "Je veux apprendre le piano",
+                        "Besoin de quelqu'un pour garder mon chien",
+                        "Je donne des cours de yoga",
+                        "Qui veut faire un trek ce weekend ?"
+                    ];
+                    const randomExample = examples[Math.floor(Math.random() * examples.length)];
+                    
+                    const toast = document.createElement('div');
+                    toast.textContent = randomExample;
+                    toast.style.cssText = 'position:absolute; top:120px; right:80px; background:rgba(80,30,160,0.7); padding:10px 18px; border-radius:9999px; font-size:13px; color:#ddccff; box-shadow: 0 0 30px -10px #dd99ff; opacity:0.9; transition: all 3s ease;';
+                    document.body.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        toast.style.opacity = 0;
+                        toast.style.transform = 'translateY(-30px)';
+                        setTimeout(() => document.body.removeChild(toast), 2500);
+                    }, 2100);
+                }
+            }, 13000);
+            
+            // Welcome message
+            setTimeout(() => {
+                const welcome = document.createElement('div');
+                welcome.style.cssText = `
+                    position: absolute; 
+                    top: 140px; 
+                    left: 50%; 
+                    transform: translateX(-50%);
+                    background: rgba(20,10,70,0.85);
+                    color: #99eeff;
+                    font-size: 13px;
+                    padding: 10px 26px;
+                    border-radius: 40px;
+                    white-space: nowrap;
+                    z-index: 999;
+                    box-shadow: 0 0 40px -15px #00ffff;
+                    opacity: 0;
+                    transition: opacity 2s ease;
+                `;
+                welcome.innerHTML = '👋 Bienvenue dans le <span style="color:#ff99ee">NEXUS</span>';
+                document.body.appendChild(welcome);
+                
+                setTimeout(() => welcome.style.opacity = 1, 1600);
+                setTimeout(() => {
+                    welcome.style.opacity = 0;
+                    setTimeout(() => document.body.removeChild(welcome), 2200);
+                }, 5200);
+            }, 2100);
+            
+            console.log('%cNEXUS 3D experience initialized ✨', 'color:#77ddff; font-family:monospace');
+        }
+        
+        // Boot the experience
+        window.onload = initializeNexus;
+    </script>
+</body>
+</html>
