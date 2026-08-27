@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/V11_gaia_nexus_world.html" }
+    { "source": "/", "destination": "/V12_nexus_constellation_cube.html" }
   ],
   "headers": [
     {
