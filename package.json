@@ -1,0 +1,8 @@
+{
+  "name": "nexus-gaia-world",
+  "version": "11.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node -e \"console.log('NEXUS V11 static build: nothing to compile')\""
+  }
+}
