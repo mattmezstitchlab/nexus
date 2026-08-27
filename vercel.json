@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/V13_nexus_living_constellation.html" }
+    { "source": "/", "destination": "/V14_constellation_engine.html" }
   ],
   "headers": [
     {
