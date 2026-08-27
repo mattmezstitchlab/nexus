@@ -1,0 +1,6 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/V10_gaia_nexus_world.html" }
+  ]
+}
