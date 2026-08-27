@@ -1,8 +1,8 @@
 {
   "name": "nexus-gaia-world",
-  "version": "15.0.0",
+  "version": "15.0.1",
   "private": true,
   "scripts": {
-    "build": "node -e \"const fs=require('fs'); fs.rmSync('public',{recursive:true,force:true}); fs.mkdirSync('public',{recursive:true}); fs.copyFileSync('V15_living_constellation.html','public/index.html'); console.log('NEXUS V15 static build complete: public/index.html')\""
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('public',{recursive:true,force:true}); fs.mkdirSync('public',{recursive:true}); let h=fs.readFileSync('V15_living_constellation.html','utf8'); const fix=fs.readFileSync('cube-fix.js','utf8'); h=h.replace('</script></body>',fix+'</script></body>'); fs.writeFileSync('public/index.html',h); console.log('NEXUS V15.1 static build complete: public/index.html')\""
   }
 }
