@@ -1,0 +1,79 @@
+NEXUS V3.1 Proof of Intelligence - Plan de mise en œuvre
+1. ARCHITECTURE MENTALE:
+   CE QUE JE DIS
+       │
+       ▼
+   COMPRENDRE (situation, contexte, ambiguïté)
+       │
+       ▼
+   SITUATION (ancienne chambre d'enfant, transition familiale, etc.)
+       │
+ ┌────────┼────────┼────────┐
+ ▼        ▼        ▼        ▼
+ BESOIN   RESSOURCE  CAPACITÉ   CONTRAINTES
+ ▼        ▼        ▼        ▼
+   TEMPS    INCERTITUDE
+       │
+       ▼
+   ┌─────────────┐
+   │ POSSIBILITÉS│
+   └──────┬──────┘
+         │
+ ┌──────┼──────┐ ┌──┐
+ ▼      ▼      ▼  ▼ ▼
+ PERSONNE OBJET LIEU  AUTRE
+2. EXEMPLES À TESTER (100 phrases adversarial) :
+   • « Je suis épuisé, j'ai juste envie de rentrer chez moi. » → AUCUNE rencontre
+   • « J'ai énormément de temps libre depuis que je suis à la retraite. » → PAS automatiquement "cherche activités"
+   • « J'ai une chambre vide. » → PAS automatiquement "veut accueillir"
+   • « Je connais très bien Lille. » → PAS automatiquement "veut faire visiter"
+   • « J'ai une chambre qui ne sert plus depuis que ma fille est partie. » → Structure complexe, pas de conclusion hâtive
+   • « Je pourrais aider samedi, mais seulement le matin. » → Contraintes de temps explicites
+   • « Ça fait trois jours que mon évier fuit et je repousse toujours le problème. » → Problème concret, pas de rencontre sociale
+   • « J'apprends le saxophone mais je n'ai vraiment pas le temps en ce moment. » → Intérêt élevé, disponibilité faible, horizon futur
+   • « Je déménage dans deux semaines et je connais absolument personne. » → Nouveau contexte, incertitude élevée
+   • « J'ai plein de choses à dire sur les plantes si ça peut servir à quelqu'un. » → Capacité dormant, pas de demande directe
+3. STRUCTURE DE RÉSULTATS attendue pour chaque phrase :
+   - Expression brute
+   - Analyse de contexte (nouveau lieu, retraite, etc.)
+   - État situationnel (espace inutilisé, transition, etc.)
+   - Ressource identifiée (pièce disponible, temps libre, connaissance locale, etc.)
+   - Niveau d'incertitude (pourcentage ou sémantique)
+   - Possibilités émergentes (liste non exhaustive)
+   - Recommandation d'action (aucune imposée, "continuer dialogue" ou spécifique)
+   - Pourquoi PAS de telle conclusion (explication du pourquoi le moteur s'abstient)
+4. INTERDICTIONS IMPOSITIONS :
+   - Jamais: "Cette personne veut X"
+   - Toujours montrer l'incertitude quand insuffisantes
+   - Possibilités toujours sous forme d'options, pas de certitudes
+   - Le cube montre des états sémantiques, pas des statistiques (%)
+5. CRÉATION DU "TABLEAU DE SITUATIONS" :
+   Pour chaque phrase testée, afficher :
+   - Ce qui a été détecté
+   - Ce qui a été Intentionalement IGNORÉ (et pourquoi)
+   - Les possibilités qui émergent vraiment
+   - L'incertitude restante
+   - Ce qui serait nécessaire pour aller plus loin
+6. MODIFICATION DU CUBE V3.1 :
+   - Plus de pourcentages (%)
+   - États sémantiques :
+     * ÉTAT: isolement/occupation/transition/etc.
+     * RESOURCE: 3h dispo samedi, chambre inutilisée, connaissance locale, etc.
+     * OUVERTURE: rencontre/découverte/transmission/etc.
+     * INCERTITUDE: 41% (affiché mais compris comme "non résolu")
+     * POSSIBILITÉ: activité locale (non "rencontre")
+   - Le cube change de forme/coloration selon le mélange d'états
+   - Deux cubes différents peuvent se "compléter" sans qu'on leur ait demandé de "rencontrer"
+7. ARCHITECTURE MISE À JOUR :
+   Ancien: Expression → Mots-clés → Scores → Cube
+   Nouveau: Expression → Compréhension → Situation → Ressource/Capacité/Besoins → Contraintes → Temporalité → Incertitude → Possibilités → (pas d'action imposée)
+8. TESTS REQUISES AVANT PROCHAINE ITÉRATION :
+   - 100 phrases adversarial exécutées
+   - Taux de faux positifs ≤ 5%
+   - Aucune conclusion hâtive détectée
+   - Structure de résultats cohérente sur toutes les phrases
+   - Cube qui reflète les états sémantiques, pas les pourcentages
+9. LIVE DEMO PRÉVUE :
+   Montrer le système échouer gracieusement sur certaines phrases
+   Montrer où il réussit à maintenir l'incertitude appropriée
+   Montrer la mémorisation des possibilités non choisies pour réactivation ultérieure
