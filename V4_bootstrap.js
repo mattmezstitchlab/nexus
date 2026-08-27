@@ -1,13 +1,16 @@
 /* NEXUS V4 — browser integration bridge
  *
+ * Loads the V4 engine namespace safely and exposes a stable API.
  * This bridge deliberately does not replace the legacy V3.1 engine.
- * It exposes a stable browser API for the existing NEXUS page and keeps
- * semantic analysis separate from presentation until validation is complete.
  */
 (function (global) {
   'use strict';
 
-  function resolveEngine() {
+  function resolveEngineClass() {
+    // V4_possibility_engine.js exports through global.NEXUS.
+    if (global.NEXUS && global.NEXUS.NEXUSV4PossibilityEngine) {
+      return global.NEXUS.NEXUSV4PossibilityEngine;
+    }
     return global.NexusV4PossibilityEngine
       || global.NEXUS_V4_ENGINE
       || global.NexusV4Engine
@@ -15,7 +18,7 @@
   }
 
   function create() {
-    const Engine = resolveEngine();
+    const Engine = resolveEngineClass();
     if (!Engine) {
       return {
         ready: false,
@@ -33,16 +36,12 @@
       analyze(text) {
         return engine.analyze(text);
       },
-      converge(left, right) {
-        if (typeof engine.findConvergences !== 'function') {
-          return {
-            compatible: false,
-            confidence: 0,
-            matches: [],
-            caution: 'Convergence engine unavailable.'
-          };
-        }
-        return engine.findConvergences(left, right);
+      status() {
+        return {
+          bridge: 'ready',
+          engineLoaded: true,
+          version: engine.version || '4.0.0'
+        };
       }
     };
   }
@@ -56,7 +55,7 @@
       return instance.analyze(text);
     },
     status() {
-      const Engine = resolveEngine();
+      const Engine = resolveEngineClass();
       return {
         bridge: 'ready',
         engineLoaded: !!Engine,
