@@ -1,0 +1,28 @@
+{
+  "world": {
+    "id": "wedding-demo-001",
+    "name": "Léa & Marco",
+    "health": { "score": 92 }
+  },
+  "entities": [
+    { "id": "p-lea", "name": "Léa", "entity_type": "person", "role": "mariée" },
+    { "id": "p-marco", "name": "Marco", "entity_type": "person", "role": "marié" },
+    { "id": "p-claire", "name": "Claire", "entity_type": "person", "role": "témoin" },
+    { "id": "r-photo", "name": "Photographe", "entity_type": "resource", "role": "prestataire" },
+    { "id": "e-ceremonie", "name": "Cérémonie", "entity_type": "event", "role": "événement" }
+  ],
+  "relations": [
+    { "from_entity_id": "p-lea", "to_entity_id": "p-marco", "relation_type": "couple", "strength": "critical" },
+    { "from_entity_id": "p-claire", "to_entity_id": "p-lea", "relation_type": "témoin", "strength": "important" },
+    { "from_entity_id": "e-ceremonie", "to_entity_id": "p-lea", "relation_type": "requires", "strength": "important" },
+    { "from_entity_id": "e-ceremonie", "to_entity_id": "r-photo", "relation_type": "requires_resource", "strength": "important" }
+  ],
+  "blocks": [
+    { "id": "b-ceremony", "entity_id": "e-ceremonie", "label": "Cérémonie", "start_time": "15:00", "end_time": "16:00", "buffer_minutes": 15 }
+  ],
+  "constraints": [
+    { "id": "c-photo", "entity_id": "r-photo", "description": "Le photographe doit être disponible", "constraint_type": "resource", "severity": "high", "status": "satisfied" },
+    { "id": "c-ceremony", "entity_id": "e-ceremonie", "description": "Cérémonie avant 17:00", "constraint_type": "deadline", "time_value": "17:00", "severity": "important", "status": "satisfied" }
+  ],
+  "scenarios": []
+}
